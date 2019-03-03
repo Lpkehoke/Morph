@@ -24,7 +24,7 @@ class ComputeEngine : private EnableDispatch
     // Spawns compute task for this node context and for each
     // dependency in the graph.
     //
-    void compute(NodeContext ctx, NodeCollection node_storage_state) const;
+    void compute(Node* node, NodeCollection node_storage_state) const;
 };
 
 } // namespace platform

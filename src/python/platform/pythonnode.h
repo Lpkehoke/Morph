@@ -13,11 +13,7 @@ class PythonNode : public platform::Node
   public:
     PythonNode(const boost::python::object& py_object);
 
-    virtual platform::NodeState initial() const override;
-
-    virtual platform::KnobCollection compute(
-        platform::KnobCollection    input_knobs,
-        platform::KnobRefCollection input_knob_refs) const override;
+    virtual void compute() const override;
 
   private:
     boost::python::object m_py_object;

@@ -32,12 +32,8 @@ class Reducer
     {
         auto  factory = m_node_factory_registry->get_node_factory(action.model);
         Node* n       = factory->create();
-        auto  node_state = n->initial();
 
-        auto next_state = state.set(action.id,
-                                    NodeContext {action.id,
-                                                 std::move(node_state),
-                                                 n});
+        auto next_state = state.set(action.id, n);
 
         return next_state;
     }
@@ -62,10 +58,10 @@ struct NodeStorage::Impl
         : m_reducer(registry)
     {}
 
-    TaskQueue             m_action_queue;
-    NodeCollection        m_state;
-    Reducer               m_reducer;
-    std::vector<OnNextFn> m_subscribers;
+    TaskQueue               m_action_queue;
+    NodeCollection          m_state;
+    Reducer                 m_reducer;
+    std::vector<OnUpdateFn> m_subscribers;
 };
 
 NodeStorage::NodeStorage(NodeFactoryRegistry* registry)
@@ -85,7 +81,7 @@ void NodeStorage::dispatch(NodeStorageAction action)
                                                std::move(action));
         for (auto& cb : impl->m_subscribers)
         {
-            cb(impl->m_state);
+            cb();
         }
     });
 }
@@ -96,7 +92,7 @@ NodeCollection NodeStorage::state() const
     return impl->m_state;
 }
 
-void NodeStorage::subscribe(OnNextFn on_next)
+void NodeStorage::subscribe(OnUpdateFn on_next)
 {
     impl->m_subscribers.push_back(std::move(on_next));
 }

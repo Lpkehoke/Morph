@@ -20,15 +20,8 @@ struct RemoveNode
     NodeId id;
 };
 
-struct UpdateNodeOutput
-{
-    NodeId         id;
-    KnobCollection output_knobs;
-};
-
 using NodeStorageAction = std::variant<
     CreateNode,
-    RemoveNode, 
-    UpdateNodeOutput>;
+    RemoveNode>;
 
 } // namespace platform
