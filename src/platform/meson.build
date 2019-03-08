@@ -1,4 +1,4 @@
-tbb_dep = dependency('tbb', method: 'pkg-config')
+tbb_dep = dependency('TBB', method: 'pkg-config')
 
 core_platform = [
     'computeengine.cpp',

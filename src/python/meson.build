@@ -2,8 +2,7 @@ boost_dep = dependency('boost', modules: ['python3'])
 python_dep = dependency('python3')
 
 bindplatform_src = [
-    'platform/module.cpp',
-    'platform/pythonnode.cpp'
+    'platform/module.cpp'
 ]
 
 bindplatform = shared_library(
