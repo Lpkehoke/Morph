@@ -5,9 +5,9 @@ class Morph(ConanFile):
     settings = 'os', 'compiler', 'build_type', 'arch', 'cppstd'
 
     requires = (
-        'tbb/2019.6@morph/dependencies',
-        'googletest/1.8.1@morph/dependencies',
-        'boost/1.69.0@morph/dependencies'
+        'TBB/2019_U4@conan/stable',
+        'gtest/1.8.1@bincrafters/stable',
+        'boost/1.69.0@conan/stable'
     )
 
     generators = {'pkg_config'}
@@ -32,7 +32,7 @@ class Morph(ConanFile):
         self.copy('*.so', dst='', keep_path=False)
 
         # copy tbb libs
-        tbb_lib_dir = self.deps_cpp_info["tbb"].libdirs[0]
+        tbb_lib_dir = self.deps_cpp_info["TBB"].libdirs[0]
         self.copy('*', src=tbb_lib_dir, dst='', keep_path=False)
 
         # copy boost libs
