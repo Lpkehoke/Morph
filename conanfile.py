@@ -57,8 +57,10 @@ class Morph(ConanFile):
 
         new_name = os.path.basename(path)
         new_name = new_name[0:new_name.find('python3') + 7] + '.so'
-
-        os.symlink(path, os.path.join(boost_libs_path, new_name))
+        try:
+            os.symlink(path, os.path.join(boost_libs_path, new_name))
+        except:
+            pass
 
     def build(self):
         self.create_boost_python_symlink()

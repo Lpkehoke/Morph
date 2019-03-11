@@ -1,5 +1,6 @@
 boost_dep = dependency('boost', modules: ['python3'])
-python_dep = dependency('python3')
+
+python_dep = dependency('python-3.6')
 
 bindplatform_src = [
     'platform/module.cpp'

@@ -1,0 +1,34 @@
+sudo: false
+language: cpp
+dist: trusty
+
+compiler:
+  - gcc
+
+os:
+  - linux
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - sourceline: 'ppa:deadsnakes/ppa'
+    packages:
+      - g++-8
+      - python3.6
+      - python3.6-dev
+
+install:
+  - curl https://bootstrap.pypa.io/ez_setup.py -o - | sudo python3.6 && sudo python3.6 -m easy_install pip
+  - sudo -H pip3.6 install meson conan
+  - conan user
+  - export NINJA_LATEST=https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip
+  - wget "$NINJA_LATEST"
+  - unzip -q ninja-linux.zip -d ninja_dir && chmod u+x ./ninja_dir/ninja
+  - export PATH="$PWD/ninja_dir:$PATH"
+  - echo `ninja --version`
+
+script:
+  - export CXX=g++-8
+  - conan install -if=build -b=missing -s build_type=Debug -s cppstd=17 -s compiler=gcc -s compiler.version=8 .
+  - conan build -if=build -bf=build .
