@@ -1,15 +1,16 @@
 tbb_dep = dependency('TBB', method: 'pkg-config')
 
-core_platform = [
+platform_src = [
     'computeengine.cpp',
     'nodefactoryregistry.cpp',
-    'nodestorage.cpp',
-    'taskqueue.cpp'
+    'nodestorage.cpp'
 ]
 
-core = static_library(
+platform = static_library(
     'platform',
-    core_platform,
+    platform_src,
     include_directories: root_include_dir,
-    dependencies: [tbb_dep]
+    dependencies: [base_dep, tbb_dep]
 )
+
+platform_dep = declare_dependency(link_with: platform)

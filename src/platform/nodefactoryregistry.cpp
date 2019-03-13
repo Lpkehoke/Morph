@@ -2,18 +2,19 @@
 
 #include "nodefactory.h"
 
+#include <exception>
+
 namespace platform
 {
 
 void NodeFactoryRegistry::register_node_factory(NodeFactory* factory)
 {
-    auto& model = factory->model();
+    auto model = factory->model();
 
     auto itr = m_factory_collection.find(model);
     if (itr != m_factory_collection.end())
     {
-        // TODO: use better exception type.
-        throw 0;
+        throw std::runtime_error("Node factory for model " + model + " already exists.");
     }
 
     m_factory_collection.emplace(model, factory);
@@ -25,8 +26,7 @@ const NodeFactory* NodeFactoryRegistry::get_node_factory(
     auto itr = m_factory_collection.find(model);
     if (itr == m_factory_collection.end())
     {
-        // TODO: use better exception type.
-        throw 0;
+        throw std::runtime_error("Node factory for model " + model + " not found.");
     }
 
     return itr->second;

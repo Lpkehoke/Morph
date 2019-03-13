@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <stack>
+#include <tuple>
 
 namespace immutable
 {
@@ -22,6 +23,12 @@ class Iterator
         , m_last_value(nullptr)
     {}
 
+    Iterator(const Iterator& other)
+        : m_stack(other.m_stack)
+        , m_this_value(other.m_this_value)
+        , m_last_value(other.m_last_value)
+    {}
+
     Iterator(NodeType* node)
         : m_this_value(nullptr)
         , m_last_value(nullptr)
@@ -30,9 +37,15 @@ class Iterator
         next_node();
     }
 
+    bool operator==(const Iterator& other) const
+    {
+        return std::tie(m_this_value, m_last_value, m_stack)
+            == std::tie(other.m_this_value, other.m_last_value, other.m_stack);
+    }
+
     bool operator!=(const Iterator& other) const
     {
-        return m_this_value != other.m_this_value;
+        return !(*this == other);
     }
 
     Iterator operator++()
@@ -45,6 +58,15 @@ class Iterator
         }
 
         return *this;
+    }
+
+    Iterator operator++(int)
+    {
+        Iterator result(*this);
+
+        operator++();
+
+        return result;
     }
 
     const Data& operator*() const
@@ -82,3 +104,16 @@ class Iterator
 
 } // namespace detail
 } // namespace immutable
+
+namespace std
+{
+
+template <typename T, immutable::detail::Count B>
+struct iterator_traits<immutable::detail::Iterator<T, B>>
+{
+    using value_type = const T;
+    using pointer = const T*;
+    using reference	= const T&;
+};
+
+}

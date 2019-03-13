@@ -10,9 +10,10 @@ namespace platform
 class NodeFactory
 {
   public:
-    virtual Node*              create() const = 0;
-    virtual const std::string& model() const  = 0;
-    virtual ~NodeFactory()                    = default;
+    virtual Node*       create() const = 0;
+    virtual std::string model() const  = 0;
+
+    virtual ~NodeFactory() = default;
 };
 
 } // namespace platform

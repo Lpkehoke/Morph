@@ -2,7 +2,7 @@
 
 #include <functional>
 
-namespace platform
+namespace base
 {
 
 class TaskQueue
@@ -20,4 +20,4 @@ class TaskQueue
     Impl* impl;
 };
 
-} // namespace platform
+} // namespace base

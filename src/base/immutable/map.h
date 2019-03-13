@@ -57,11 +57,31 @@ class Map
     {
         auto res = detail::MapSetOp<K, V, H, branches> {}
                        .set(m_root, std::move(Pair {key, value}));
+
         if (auto n = std::get_if<Node*>(&res))
         {
             return Map {*n};
         }
         return *this;
+    }
+
+    void set_in_place(K key, V value)
+    {
+        // TODO; optimize me!
+        auto res = detail::MapSetOp<K, V, H, branches> {}
+                .set(m_root, std::move(Pair {key, value}));
+
+        if (auto n = std::get_if<Node*>(&res))
+        {
+            if (m_root->dec())
+            {
+                detail::allocation::destroy(m_root);
+                detail::allocation::deallocate(m_root, 1);
+            }
+
+            m_root = *n;
+        }
+
     }
 
     Map erase(K key) const
@@ -88,6 +108,12 @@ class Map
     Iterator end() const
     {
         return Iterator();
+    }
+
+    bool operator==(const Map& other) const
+    {
+        // TODO.
+        return false;
     }
 
     ~Map()
