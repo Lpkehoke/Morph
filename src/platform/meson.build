@@ -3,7 +3,8 @@ tbb_dep = dependency('TBB', method: 'pkg-config')
 platform_src = [
     'computeengine.cpp',
     'nodefactoryregistry.cpp',
-    'nodestorage.cpp'
+    'nodestorage.cpp',
+    'logger.cpp'
 ]
 
 platform = static_library(
