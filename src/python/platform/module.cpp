@@ -1,7 +1,12 @@
+#include "pythondictconversion.inl"
+
+#include "platform/knobsbuilder.h"
+#include "platform/logger.h"
 #include "platform/node.h"
 #include "platform/nodefactory.h"
 #include "platform/nodefactoryregistry.h"
 #include "platform/nodestorage.h"
+#include "platform/nodestorageactions.h"
 #include "platform/nodestoragetypes.h"
 
 #include <boost/python.hpp>
@@ -129,7 +134,7 @@ class DummyNode : public Node
 class DummyNodeFactory : public NodeFactory
 {
   public:
-    virtual Node* create() const override
+    virtual Node* create(const KnobsMap& knobs) const override
     {
         return new DummyNode();
     }
@@ -137,6 +142,11 @@ class DummyNodeFactory : public NodeFactory
     virtual std::string model() const override
     {
         return "Dummy";
+    }
+
+    virtual KnobInitInfoMap knobs_init_info() const override
+    {
+        return KnobInitInfoMap();
     }
 };
 
@@ -154,94 +164,25 @@ class NodeFactoryRegistryAdaptor : public NodeFactoryRegistry
 class NodeStorageAdaptor : public NodeStorage
 {
   public:
-    NodeStorageAdaptor(NodeFactoryRegistryAdaptor* registry);
+    NodeStorageAdaptor(
+        NodeFactoryRegistryAdaptor* registry,
+        KnobsBuilder*               builder,
+        Logger*                     logger);
+
     void dispatch(const dict& action);
     void subscribe(const object& on_update);
 };
 
 
 //
-//  Python dict conversion utils.
-//
-
-template <typename T>
-T from_dict(const dict& input);
-
-template <>
-Metadata from_dict(const dict& input)
-{
-    Metadata metadata;
-    auto items = input.items();
-
-    for (auto idx = 0; idx < len(items); ++idx)
-    {
-        object key = items[idx][0];
-        std::string key_str = extract<std::string>(key);
-
-        object val = items[idx][1];
-
-        if (PyObject_TypeCheck(val.ptr(), &PyFloat_Type)
-            || PyObject_TypeCheck(val.ptr(), &PyLong_Type))
-        {
-            float val_float = extract<float>(val);
-            metadata.set_in_place(key_str, val_float);
-        }
-        else if (PyObject_TypeCheck(val.ptr(), &PyUnicode_Type))
-        {
-            std::string val_str = extract<std::string>(val);
-            metadata.set_in_place(key_str, val_str);
-        }
-        else
-        {
-            throw std::runtime_error("Metadata dictionary only supports float and str types.");
-        }
-    }
-
-    return metadata;
-}
-
-template <>
-CreateNode from_dict(const dict& input)
-{
-    CreateNode create_node;
-
-    create_node.id = extract<NodeId>(input["id"]);
-    create_node.model = extract<std::string>(input["model"]);
-
-    dict metadata_dict = extract<dict>(input["metadata"]);
-    create_node.metadata = from_dict<Metadata>(metadata_dict);
-
-    return create_node;
-}
-
-template <>
-RemoveNode from_dict(const dict& input)
-{
-    RemoveNode remove_node;
-
-    remove_node.id = extract<NodeId>(input["id"]);
-
-    return remove_node;
-}
-
-template <>
-UpdateNodeMetadata from_dict(const dict& input)
-{
-    UpdateNodeMetadata update_node_metadata;
-    update_node_metadata.id = extract<NodeId>(input["id"]);
-    
-    dict metadata_dict = extract<dict>(input["metadata"]);
-    update_node_metadata.metadata = from_dict<Metadata>(metadata_dict);
-
-    return update_node_metadata;
-}
-
-//
 //  NodeStorageAdaptor implementation.
 //
 
-NodeStorageAdaptor::NodeStorageAdaptor(NodeFactoryRegistryAdaptor* registry)
-    : NodeStorage(registry)
+NodeStorageAdaptor::NodeStorageAdaptor(
+    NodeFactoryRegistryAdaptor* registry,
+    KnobsBuilder*               builder,
+    Logger*                     logger)
+    : NodeStorage(registry, builder, logger)
 {}
 
 void NodeStorageAdaptor::dispatch(const dict& action)
@@ -261,7 +202,12 @@ void NodeStorageAdaptor::dispatch(const dict& action)
     else if (action_type == "UpdateNodeMetadata")
     {
         auto update_node_metadata = from_dict<UpdateNodeMetadata>(action);
-        NodeStorage::dispatch(update_node_metadata);
+        NodeStorage::dispatch(std::move(update_node_metadata));
+    }
+    else if (action_type == "MakeConnection")
+    {
+        auto make_connection = from_dict<MakeConnection>(action);
+        NodeStorage::dispatch(std::move(make_connection));
     }
     else
     {
@@ -295,23 +241,27 @@ void NodeStorageAdaptor::subscribe(const object& on_update)
 
 void bind_node_storage()
 {
-    class_<NodeStorage::State>("NodeStorageState")
+    class_<NodeStorageState>("NodeStorageState")
         .add_property(
             "nodes",
-            +[](const NodeStorage::State& state)
+            +[](const NodeStorageState& state)
             {
                 return state.m_nodes;
             })
         .add_property(
-            "metadata",
-            +[](const NodeStorage::State& state)
+            "node_metadata",
+            +[](const NodeStorageState& state)
             {
-                return state.m_metadata;
+                return state.m_node_metadata;
             });
 
     class_<NodeFactoryRegistryAdaptor>("NodeFactoryRegistry");
+    class_<KnobsBuilder>("KnobsBuilder");
+    class_<Logger>("Logger");
 
-    class_<NodeStorageAdaptor>("NodeStorage", init<NodeFactoryRegistryAdaptor*>())
+    class_<NodeStorageAdaptor>(
+        "NodeStorage",
+        init<NodeFactoryRegistryAdaptor*, KnobsBuilder*, Logger*>())
         .def("dispatch", &NodeStorageAdaptor::dispatch)
         .def("state", &NodeStorageAdaptor::state)
         .def("subscribe", &NodeStorageAdaptor::subscribe);

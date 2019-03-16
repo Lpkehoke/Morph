@@ -65,7 +65,7 @@ class Map
         return *this;
     }
 
-    void set_in_place(K key, V value)
+    void mutable_set(K key, V value)
     {
         // TODO; optimize me!
         auto res = detail::MapSetOp<K, V, H, branches> {}
@@ -86,9 +86,7 @@ class Map
 
     Map erase(K key) const
     {
-        auto res = detail::MapEraseOp<K, V, H, branches> {}.erase(m_root,
-                                                                  std::move(
-                                                                      key));
+        auto res = detail::MapEraseOp<K, V, H, branches> {}.erase(m_root, std::move(key));
         if (auto n = std::get_if<Node*>(&res))
         {
             return Map {*n};
@@ -98,6 +96,33 @@ class Map
             assert(false && "Wrong return value.");
         }
         return *this;
+    }
+
+    void mutable_erase(K key) const
+    {
+        auto res = detail::MapEraseOp<K, V, H, branches> {}
+            .erase(m_root, std::move(key));
+
+        if (auto n = std::get_if<Node*>(&res))
+        {
+            if (m_root->dec())
+            {
+                detail::allocation::destroy(m_root);
+                detail::allocation::deallocate(m_root, 1);
+            }
+
+            m_root = *n;
+        }
+        else if (auto v = std::get_if<Pair>(&res))
+        {
+            assert(false && "Wrong return value.");
+        }
+    }
+
+    bool contains(K key) const
+    {
+        return detail::MapContainsOp<K, V, H, branches> {}
+            .contains(m_root, std::move(key));
     }
 
     Iterator begin() const

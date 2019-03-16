@@ -12,9 +12,11 @@ namespace immutable
 namespace detail
 {
 
+
 //
 //  Resolve two values collision in the map node.
 //
+
 template <typename K, typename V, typename H, Count B>
 struct MapMergeNodesOp
 {
@@ -75,9 +77,11 @@ struct MapMergeNodesOp
     }
 };
 
+
 //
 //  Set the value in the map node.
 //
+
 template <typename K, typename V, typename H, Count B>
 struct MapSetOp
 {
@@ -175,6 +179,11 @@ struct MapSetOp
     }
 };
 
+
+//
+//  Get the value from the map node.
+//
+
 template <typename K, typename V, typename H, Count B>
 struct MapGetOp
 {
@@ -235,9 +244,11 @@ struct MapGetOp
     }
 };
 
+
 //
 //  Erase value from the map node.
 //
+
 template <typename K, typename V, typename H, Count B>
 struct MapEraseOp
 {
@@ -330,6 +341,73 @@ struct MapEraseOp
         }
 
         return {};
+    }
+};
+
+
+//
+//  Find the value in the map node.
+//
+
+template <typename K, typename V, typename H, Count B>
+struct MapContainsOp
+{
+    using Key    = K;
+    using Data   = std::pair<const K, const V>;
+    using HashFn = H;
+
+    bool contains(Node<Data, B>* node, Key&& key) const
+    {
+        auto hash = HashFn {}(key);
+        return contains(node, std::move(key), hash, 0);
+    }
+
+    bool contains(
+        Node<Data, B>* node,
+        Key&&          key,
+        Hash           hash,
+        Shift          shift) const
+    {
+        if (shift >= max_shift<B>)
+        {
+            for (size_t idx = 0; idx < node->collision_size(); ++idx)
+            {
+                auto data_ptr = node->collision_data() + idx;
+                if (data_ptr->first == key)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        auto sparse_idx = (hash >> shift) & mask<B>;
+        auto bit        = Bitmap {1u} << sparse_idx;
+
+        if (bit & node->datamap())
+        {
+            auto compact_idx = popcount(node->datamap() & (bit - 1));
+            auto value       = node->data() + compact_idx;
+
+            if (value->first == key)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        else if (bit & node->nodemap())
+        {
+            auto compact_idx = popcount(node->nodemap() & (bit - 1));
+            auto child       = *(node->children() + compact_idx);
+
+            bool res = contains(child, std::move(key), hash, shift + B);
+
+            return res;
+        }
+
+        return false;
     }
 };
 

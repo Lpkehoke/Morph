@@ -11,7 +11,7 @@ namespace platform
 class Logger
 {
   public:
-    enum class TypeLog
+    enum class Severity
     {
         trace,
         debug,
@@ -21,23 +21,22 @@ class Logger
         fatal
     };
 
-    struct LogObject
+    struct LogRecord
     {
-        LogObject() = default;
-        ~LogObject() = default;
+        LogRecord() = default;
+        ~LogRecord() = default;
 
-        LogObject(LogObject&& log);
-        LogObject(const LogObject& log);
-        LogObject& operator=(LogObject&& log);
+        LogRecord(LogRecord&& other);
+        LogRecord(const LogRecord& other);
 
         std::size_t                                        id;
         std::string                                        info;
-        TypeLog                                            view;
+        Severity                                           severity;
         std::chrono::time_point<std::chrono::system_clock> time;
 
     };
 
-    using StateType = std::vector<LogObject>;
+    using State = std::vector<LogRecord>;
 
     Logger()  = default;
     ~Logger() = default;
@@ -49,12 +48,12 @@ class Logger
     void log_error(const std::string& info);
     void log_fatal(const std::string& info);
 
-    StateType get_state() const;
+    State get_state() const;
 
   private:
-    LogObject create_log_object(const std::string& info, const TypeLog view);
+    LogRecord create_log_record(const std::string& info, const Severity severity);
 
-    StateType   m_state;
+    State       m_state;
     std::size_t m_current_id;
 };
 

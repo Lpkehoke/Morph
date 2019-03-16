@@ -28,9 +28,18 @@ struct UpdateNodeMetadata
     Metadata        metadata;
 };
 
+struct MakeConnection
+{
+    NodeId          output_node_id;
+    std::string     output_knob_name;
+    NodeId          input_node_id;
+    std::string     input_knob_name;
+};
+
 using NodeStorageAction = std::variant<
     CreateNode,
     RemoveNode,
-    UpdateNodeMetadata>;
+    UpdateNodeMetadata,
+    MakeConnection>;
 
 } // namespace platform

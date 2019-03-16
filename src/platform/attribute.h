@@ -7,12 +7,13 @@ namespace platform
 {
 
 //
-//  Attribute is a immutable box for a value.
+//  Attribute is a container for a value.
 //  It's lifetime is managed by reference counting.
 //
 class Attribute
 {
   public:
+    Attribute(const Attribute& other);
     Attribute(float value);
 
     //
@@ -26,10 +27,5 @@ class Attribute
 
     Value m_value;
 };
-
-float Attribute::as_float() const
-{
-    return std::get<float>(m_value);
-}
 
 } // namespace platform
