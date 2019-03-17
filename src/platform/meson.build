@@ -2,7 +2,7 @@ platform_src = [
     'attribute.cpp',
     'computeengine.cpp',
     'knob.cpp',
-    'knobsbuilder.cpp',
+    'knobmodelregistry.cpp',
     'logger.cpp',
     'node.cpp',
     'nodefactoryregistry.cpp',

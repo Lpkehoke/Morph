@@ -7,7 +7,7 @@
 
 #include <functional>
 
-namespace platform { class KnobsBuilder; }
+namespace platform { class KnobModelRegistry; }
 namespace platform { class Logger; }
 namespace platform { class NodeFactoryRegistry; }
 
@@ -21,7 +21,7 @@ class NodeStorage
 
     NodeStorage(
         NodeFactoryRegistry*    registry,
-        KnobsBuilder*           builder,
+        KnobModelRegistry*     builder,
         Logger*                 logger);
 
     ~NodeStorage();

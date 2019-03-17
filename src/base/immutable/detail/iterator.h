@@ -54,6 +54,7 @@ class Iterator
         if (m_this_value == m_last_value)
         {
             m_this_value = nullptr;
+            m_last_value = nullptr;
             next_node();
         }
 

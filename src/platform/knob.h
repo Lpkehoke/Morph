@@ -16,6 +16,8 @@ class Knob
   public:
     using AttrMap = immutable::Map<std::string, AttrId>;
 
+    Knob(NodeId owner, std::string model_name, AttrMap attr_map);
+
     AttrId attribute(const std::string& attr_name) const;
     
     NodeId owner() const;
@@ -34,12 +36,16 @@ class Knob
         std::string knob_name;
     };
 
-    using Value = std::variant<AttrMap, KnobRef>;
+    using Value = std::variant<std::monostate, AttrMap, KnobRef>;
 
-    Knob(NodeId owner, KnobRef&& knob_ref);
+    Knob(
+        std::string model_name,
+        NodeId      owner,
+        KnobRef&&   knob_ref);
 
-    NodeId  m_owner;
-    Value   m_value;
+    NodeId          m_owner;
+    std::string     m_model_name;
+    Value           m_value;
 };
 
 } // namespace platform

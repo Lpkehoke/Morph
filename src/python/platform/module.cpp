@@ -1,6 +1,6 @@
 #include "pythondictconversion.inl"
 
-#include "platform/knobsbuilder.h"
+#include "platform/knobmodelregistry.h"
 #include "platform/logger.h"
 #include "platform/node.h"
 #include "platform/nodefactory.h"
@@ -23,7 +23,7 @@ using namespace platform;
 
 void bind_node()
 {
-    class_<Node, boost::noncopyable>("Node", no_init);
+    class_<Node, NodePtr>("Node");
 }
 
 void bind_node_collection()
@@ -36,7 +36,28 @@ void bind_node_collection()
         .def(
             "__iter__",
             range(&NodeCollection::begin, &NodeCollection::end));
-        
+}
+
+
+//
+//  Bind Knob.
+//
+
+void bind_knob()
+{
+    class_<Knob, KnobPtr>("Knob", init<NodeId, std::string, Knob::AttrMap>());
+}
+
+void bind_knob_collection()
+{
+    class_<KnobCollection>("KnobKollection")
+        .def(
+            "__getitem__",
+            &KnobCollection::get,
+            return_internal_reference<>())
+        .def(
+            "__iter__",
+            range(&KnobCollection::begin, &KnobCollection::end));
 }
 
 
@@ -63,7 +84,7 @@ struct MetadataPropertyConverter
         return PyUnicode_FromString(value.c_str());
     }
 
-    static PyObject* convert(float value)
+    static PyObject* convert(double value)
     {
         return PyFloat_FromDouble(value);
     }
@@ -166,7 +187,7 @@ class NodeStorageAdaptor : public NodeStorage
   public:
     NodeStorageAdaptor(
         NodeFactoryRegistryAdaptor* registry,
-        KnobsBuilder*               builder,
+        KnobModelRegistry*         builder,
         Logger*                     logger);
 
     void dispatch(const dict& action);
@@ -180,7 +201,7 @@ class NodeStorageAdaptor : public NodeStorage
 
 NodeStorageAdaptor::NodeStorageAdaptor(
     NodeFactoryRegistryAdaptor* registry,
-    KnobsBuilder*               builder,
+    KnobModelRegistry*         builder,
     Logger*                     logger)
     : NodeStorage(registry, builder, logger)
 {}
@@ -249,6 +270,18 @@ void bind_node_storage()
                 return state.m_nodes;
             })
         .add_property(
+            "knobs",
+            +[](const NodeStorageState& state)
+            {
+                return state.m_knobs;
+            })
+        .add_property(
+            "attributes",
+            +[](const NodeStorageState& state)
+            {
+                return state.m_attributes;
+            })
+        .add_property(
             "node_metadata",
             +[](const NodeStorageState& state)
             {
@@ -256,12 +289,12 @@ void bind_node_storage()
             });
 
     class_<NodeFactoryRegistryAdaptor>("NodeFactoryRegistry");
-    class_<KnobsBuilder>("KnobsBuilder");
+    class_<KnobModelRegistry>("KnobModelRegistry");
     class_<Logger>("Logger");
 
     class_<NodeStorageAdaptor>(
         "NodeStorage",
-        init<NodeFactoryRegistryAdaptor*, KnobsBuilder*, Logger*>())
+        init<NodeFactoryRegistryAdaptor*, KnobModelRegistry*, Logger*>())
         .def("dispatch", &NodeStorageAdaptor::dispatch)
         .def("state", &NodeStorageAdaptor::state)
         .def("subscribe", &NodeStorageAdaptor::subscribe);

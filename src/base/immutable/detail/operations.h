@@ -373,10 +373,7 @@ struct MapContainsOp
             for (size_t idx = 0; idx < node->collision_size(); ++idx)
             {
                 auto data_ptr = node->collision_data() + idx;
-                if (data_ptr->first == key)
-                {
-                    return true;
-                }
+                return data_ptr->first == key;
             }
 
             return false;
@@ -390,12 +387,7 @@ struct MapContainsOp
             auto compact_idx = popcount(node->datamap() & (bit - 1));
             auto value       = node->data() + compact_idx;
 
-            if (value->first == key)
-            {
-                return true;
-            }
-
-            return false;
+            return value->first == key;
         }
         else if (bit & node->nodemap())
         {

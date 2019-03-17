@@ -26,7 +26,7 @@ using AttributeCollection   = immutable::Map<AttrId, AttrPtr>;
 using KnobCollection        = immutable::Map<KnobId, KnobPtr>;
 using NodeCollection        = immutable::Map<NodeId, NodePtr>;
 
-using MetadataProperty      = std::variant<std::string, float>;
+using MetadataProperty      = std::variant<std::string, double>;
 using Metadata              = immutable::Map<std::string, MetadataProperty>;
 using MetadataCollection    = immutable::Map<NodeId, Metadata>;
 

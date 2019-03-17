@@ -29,7 +29,9 @@ void Node::on_compute_begin(NodeStorageState* state)
 }
 
 void Node::on_compute_end()
-{}
+{
+    m_state = nullptr;
+}
 
 const Attribute& Node::get_input_knob_attribute(
     const std::string& knob_name,

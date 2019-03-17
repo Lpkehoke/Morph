@@ -8,8 +8,18 @@
 namespace platform
 {
 
-Knob::Knob(NodeId owner, KnobRef&& knob_ref)
+Knob::Knob(KnobId owner, std::string model_name, AttrMap attr_map)
     : m_owner(owner)
+    , m_model_name(std::move(model_name))
+    , m_value(std::move(attr_map))
+{}
+
+Knob::Knob(
+    std::string model_name,
+    NodeId      owner,
+    KnobRef&&   knob_ref)
+    : m_owner(owner)
+    , m_model_name(std::move(model_name))
     , m_value(std::move(knob_ref))
 {}
 
@@ -37,6 +47,11 @@ bool Knob::is_reference() const
 
 bool Knob::accept(const Knob& other) const
 {
+    if (m_model_name != other.m_model_name)
+    {
+        return false;
+    }
+
     try
     {
         const auto& attrs_map = std::get<AttrMap>(m_value);
@@ -67,6 +82,7 @@ KnobPtr Knob::connect(const NodeId node_id, const std::string& knob_name)
     }
 
     KnobPtr result(new Knob(
+        m_model_name,
         m_owner,
         KnobRef {node_id, knob_name}));
 

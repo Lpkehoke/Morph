@@ -1,7 +1,7 @@
 #include "nodestorage.h"
 
 #include "attribute.h"
-#include "knobsbuilder.h"
+#include "knobmodelregistry.h"
 #include "logger.h"
 #include "node.h"
 #include "nodefactory.h"
@@ -24,11 +24,11 @@ class Reducer
 {
   public:
     Reducer(
-        NodeFactoryRegistry*    registry,
-        KnobsBuilder*           builder,
+        NodeFactoryRegistry*    node_factoryregistry,
+        KnobModelRegistry*      knob_model_registry,
         Logger*                 logger)
-        : m_node_factory_registry(registry)
-        , m_knobs_builder(builder)
+        : m_node_factory_registry(node_factoryregistry)
+        , m_knob_model_registry(knob_model_registry)
         , m_logger(logger)
         , m_next_attr_id(0u)
         , m_next_knob_id(0u)
@@ -59,6 +59,16 @@ class Reducer
             auto& knob_model = knob_info.second.model;
             auto& default_values = knob_info.second.default_values;
 
+            auto& knob_model_descriptor = m_knob_model_registry->get_model_descriptor(knob_model);
+
+            for (const auto& required_knob_attr : knob_model_descriptor.attributes)
+            {
+                if (default_values.find(required_knob_attr) == default_values.end())
+                {
+                    throw std::runtime_error("Default value for " + required_knob_attr + " was not provided.");
+                }
+            }
+
             Knob::AttrMap knob_attr_map;
             for (const auto& attr_pair : default_values)
             {
@@ -70,7 +80,7 @@ class Reducer
                 knob_attr_map.mutable_set(attr_pair.first, attr_id);
             }
 
-            KnobPtr knob(m_knobs_builder->build(knob_model, knob_attr_map));
+            KnobPtr knob = std::make_shared<Knob>(action.id, knob_model, knob_attr_map);
             KnobId knob_id = m_next_knob_id++;
 
             // TODO: populate knob metadata.
@@ -140,7 +150,7 @@ class Reducer
 
   private:
     NodeFactoryRegistry*    m_node_factory_registry;
-    KnobsBuilder*           m_knobs_builder;
+    KnobModelRegistry*      m_knob_model_registry;
     Logger*                 m_logger;
     AttrId                  m_next_attr_id;
     KnobId                  m_next_knob_id;
@@ -153,8 +163,11 @@ namespace platform
 
 struct NodeStorage::Impl
 {
-    Impl(NodeFactoryRegistry* registry, KnobsBuilder* builder, Logger* logger)
-        : m_reducer(registry, builder, logger)
+    Impl(
+        NodeFactoryRegistry*    node_factory_registry,
+        KnobModelRegistry*      knob_model_registry,
+        Logger*                 logger)
+        : m_reducer(node_factory_registry, knob_model_registry, logger)
         , m_logger(logger)
     {}
 
@@ -166,10 +179,10 @@ struct NodeStorage::Impl
 };
 
 NodeStorage::NodeStorage(
-    NodeFactoryRegistry*    registry,
-    KnobsBuilder*           builder,
+    NodeFactoryRegistry*    node_factory_registry,
+    KnobModelRegistry*      knob_model_registry,
     Logger*                 logger)
-    : impl(new Impl(registry, builder, logger))
+    : impl(new Impl(node_factory_registry, knob_model_registry, logger))
 {}
 
 NodeStorage::~NodeStorage()

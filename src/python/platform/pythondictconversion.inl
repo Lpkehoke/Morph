@@ -35,8 +35,8 @@ Metadata from_dict(const dict& input)
         if (PyObject_TypeCheck(val.ptr(), &PyFloat_Type)
             || PyObject_TypeCheck(val.ptr(), &PyLong_Type))
         {
-            float val_float = extract<float>(val);
-            metadata.mutable_set(key_str, val_float);
+            double val_double = PyFloat_AsDouble(val.ptr());
+            metadata.mutable_set(key_str, val_double);
         }
         else if (PyObject_TypeCheck(val.ptr(), &PyUnicode_Type))
         {
