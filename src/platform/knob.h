@@ -23,6 +23,7 @@ class Knob
     NodeId owner() const;
 
     bool        is_reference() const;
+    NodeId      referenced_node() const;
     bool        accept(const Knob& other) const;
     KnobPtr     connect(const NodeId node_id, const std::string& knob_name);
 

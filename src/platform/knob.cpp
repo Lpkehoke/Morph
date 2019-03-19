@@ -45,6 +45,18 @@ bool Knob::is_reference() const
     return std::get_if<KnobRef>(&m_value) != nullptr;
 }
 
+NodeId Knob::referenced_node() const
+{
+    try
+    {
+        return std::get<KnobRef>(m_value).node_id;
+    }
+    catch (const std::bad_variant_access&)
+    {
+        throw std::runtime_error("Non-reference knob doesn't have referenced node id.");
+    }
+}
+
 bool Knob::accept(const Knob& other) const
 {
     if (m_model_name != other.m_model_name)

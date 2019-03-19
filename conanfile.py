@@ -81,8 +81,8 @@ class Morph(ConanFile):
 
         # copy tbb libs
         tbb_lib_dir = self.deps_cpp_info['TBB'].libdirs[0]
-        self.copy('*', src=tbb_lib_dir, dst='', keep_path=False)
+        self.copy('*.so*', src=tbb_lib_dir, dst='', keep_path=False)
 
         # copy boost libs
         boost_lib_dir = self.deps_cpp_info['boost'].libdirs[0]
-        self.copy('*', src=boost_lib_dir, dst='', keep_path=False)
+        self.copy('*.so*', src=boost_lib_dir, dst='', keep_path=False)

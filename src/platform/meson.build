@@ -1,6 +1,6 @@
 platform_src = [
     'attribute.cpp',
-    'computeengine.cpp',
+    'enabledispatch.cpp',
     'knob.cpp',
     'knobmodelregistry.cpp',
     'logger.cpp',

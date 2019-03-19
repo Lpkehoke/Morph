@@ -14,8 +14,11 @@ using Shift  = std::uint32_t;
 using Hash   = std::size_t;
 using Size   = std::size_t;
 
+template <Count B, typename T = Size>
+constexpr T max_depth = (sizeof(Hash) * 8u + B - 1u) / B;
+
 template <Count B, typename T = Shift>
-constexpr T max_shift = ((sizeof(Hash) * 8u + B - 1u) / B) * B;
+constexpr T max_shift = max_depth<B, T> * B;
 
 template <Count B, typename T = Bitmap>
 constexpr T mask = (1ul << B) - 1ul;

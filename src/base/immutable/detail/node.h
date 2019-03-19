@@ -100,6 +100,11 @@ struct Node : public RefCounted
         return std::get<Inner>(m_impl);
     }
 
+    bool is_inner() const
+    {
+        return std::get_if<Inner>(&m_impl) != nullptr;
+    }
+
     auto& collision()
     {
         return std::get<Collision>(m_impl);
@@ -198,6 +203,43 @@ struct Node : public RefCounted
 
         return dest;
     }
+    
+    Node* shallow_copy() const
+    {
+        if (std::get_if<Inner>(&m_impl))
+        {
+            Node* dest = make_inner_n();
+
+            dest->inner().datamap = datamap();
+            if (datamap())
+            {
+                dest->inner().data = make_array(data(), data_size());
+            }
+
+            dest->inner().nodemap = nodemap();
+            if (nodemap())
+            {
+                dest->inner().children = make_array(children(), children_size());
+            }
+
+            inc_children(children(), children() + children_size());
+
+            return dest;
+        }
+        else
+        {
+            Node* dest = make_collision_n();
+
+            dest->collision().size = collision_size();
+
+            if (collision_size())
+            {
+                dest->collision().data = make_array(collision_data(), collision_size());
+            }
+
+            return dest;
+        }
+    }
 
     Node* replace_value(Data&& value, Count compact_idx) const
     {
@@ -222,11 +264,13 @@ struct Node : public RefCounted
 
         auto compact_idx = popcount(datamap() & (bit - 1));
 
-        dest->inner().datamap  = datamap() | bit;
-        dest->inner().data     = make_array_insert(data(),
-                                               data_size(),
-                                               compact_idx,
-                                               std::move(value));
+        dest->inner().datamap = datamap() | bit;
+        dest->inner().data = make_array_insert(
+            data(),
+            data_size(),
+            compact_idx,
+            std::move(value));
+
         dest->inner().nodemap  = nodemap();
         dest->inner().children = children();
 

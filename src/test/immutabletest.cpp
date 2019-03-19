@@ -165,7 +165,8 @@ TEST(ImmutableMap, basic_set)
     using Map = Map<int, int>;
     Map m;
 
-    std::function<Map(int)> set = [m](int value) {
+    std::function<Map(int)> set = [m](int value)
+    {
         return m.set(value, value);
     };
 
@@ -173,12 +174,35 @@ TEST(ImmutableMap, basic_set)
     {
         auto new_map = set(i);
 
+        ASSERT_EQ(new_map.size(), static_cast<std::size_t>(i + 1));
+
         for (int j = 0; j < i; ++j)
         {
-            EXPECT_EQ(new_map.get(j), j);
+            ASSERT_EQ(new_map.get(j), j);
         }
 
-        set = [new_map](int value) { return new_map.set(value, value); };
+        set = [new_map](int value)
+        { 
+            return new_map.set(value, value);
+        };
+    }
+}
+
+TEST(ImmutableMap, basic_mutable_set)
+{
+    using Map = Map<int, int>;
+    Map m;
+
+    for (int i = 0; i < 64 * 64; ++i)
+    {
+        m.mutable_set(i, i);
+
+        ASSERT_EQ(m.size(), static_cast<std::size_t>(i + 1));
+
+        for (int j = 0; j < i; ++j)
+        {
+            ASSERT_EQ(m.get(j), j);
+        }
     }
 }
 
@@ -187,20 +211,16 @@ TEST(ImmutableMap, collision_set)
     using Map = Map<int, int, collision_hash<int>>;
     Map m;
 
-    std::function<Map(int)> set = [m](int value) {
-        return m.set(value, value);
-    };
-
     for (int i = 0; i < 64; ++i)
     {
-        auto new_map = set(i);
+        m = m.set(i, i);
+
+        ASSERT_EQ(m.size(), static_cast<std::size_t>(i + 1));
 
         for (int j = 0; j < i; ++j)
         {
-            EXPECT_EQ(new_map.get(j), j);
+            ASSERT_EQ(m.get(j), j);
         }
-
-        set = [new_map](int value) { return new_map.set(value, value); };
     }
 }
 
@@ -214,20 +234,56 @@ TEST(ImmutableMap, basic_erase)
         m = m.set(i, i);
     }
 
+    ASSERT_EQ(m.size(), static_cast<std::size_t>(64 * 16));
+
     for (int i = 64 * 16 - 1; i >= 0; --i)
     {
         m = m.erase(i);
 
+        ASSERT_EQ(m.size(), static_cast<std::size_t>(i));
+
         for (int j = 0; j < i; ++j)
         {
-            EXPECT_EQ(m.get(j), j);
+            ASSERT_EQ(m.get(j), j);
         }
 
         for (int j = i; j < 64 * 16; ++j)
         {
-            EXPECT_THROW(m.get(j), std::out_of_range);
+            ASSERT_THROW(m.get(j), std::out_of_range);
         }
     }
+
+    ASSERT_EQ(m.size(), 0u);
+}
+
+TEST(ImmutableMap, basic_mutable_erase)
+{
+    using Map = Map<int, int>;
+    Map m;
+
+    for (int i = 0; i < 64 * 16; ++i)
+    {
+        m.mutable_set(i, i);
+    }
+
+    for (int i = 64 * 16 - 1; i >= 0; --i)
+    {
+        m.mutable_erase(i);
+
+        ASSERT_EQ(m.size(), static_cast<std::size_t>(i));
+
+        for (int j = 0; j < i; ++j)
+        {
+            ASSERT_EQ(m.get(j), j);
+        }
+
+        for (int j = i; j < 64 * 16; ++j)
+        {
+            ASSERT_THROW(m.get(j), std::out_of_range);
+        }
+    }
+
+    ASSERT_EQ(m.size(), 0u);
 }
 
 TEST(ImmutableMap, collision_erase)
@@ -244,14 +300,82 @@ TEST(ImmutableMap, collision_erase)
     {
         m = m.erase(i);
 
+        ASSERT_EQ(m.size(), static_cast<std::size_t>(i));
+
         for (int j = 0; j < i; ++j)
         {
-            EXPECT_EQ(m.get(j), j);
+            ASSERT_EQ(m.get(j), j);
         }
 
         for (int j = i; j < 64; ++j)
         {
-            EXPECT_THROW(m.get(j), std::out_of_range);
+            ASSERT_THROW(m.get(j), std::out_of_range);
+        }
+    }
+
+    ASSERT_EQ(m.size(), 0u);
+}
+
+TEST(ImmutableMap, mutable_get)
+{
+    using Map = Map<int, int>;
+    Map m;
+
+    for (int i = 0; i < 64 * 64; ++i)
+    {
+        m = m.set(i, i);
+    }
+
+    Map m_copy = m;
+    for (int i = 0; i < 64 * 64; i += 7)
+    {
+        int& val = m_copy.mutable_get(i);
+        val *= 3;
+    }
+
+    for (int i = 0; i < 64 * 64; ++i)
+    {
+        if (i % 7 == 0)
+        {
+            ASSERT_EQ(m.get(i), i);
+            ASSERT_EQ(m_copy.get(i), i * 3);
+        }
+        else
+        {
+            ASSERT_EQ(m.get(i), i);
+            ASSERT_EQ(m_copy.get(i), i);
+        }
+    }
+}
+
+TEST(ImmutableMap, mutable_get_collision)
+{
+    using Map = Map<int, int, collision_hash<int>>;
+    Map m;
+
+    for (int i = 0; i < 64; ++i)
+    {
+        m = m.set(i, i);
+    }
+
+    Map m_copy = m;
+    for (int i = 0; i < 64; i += 7)
+    {
+        int& val = m_copy.mutable_get(i);
+        val *= 3;
+    }
+
+    for (int i = 0; i < 64; ++i)
+    {
+        if (i % 7 == 0)
+        {
+            ASSERT_EQ(m.get(i), i);
+            ASSERT_EQ(m_copy.get(i), i * 3);
+        }
+        else
+        {
+            ASSERT_EQ(m.get(i), i);
+            ASSERT_EQ(m_copy.get(i), i);
         }
     }
 }

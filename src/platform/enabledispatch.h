@@ -1,7 +1,7 @@
 #pragma once
 
-#include "nodestorage.h"
 #include "nodestorageactions.h"
+#include "nodestoragetypes.h"
 
 #include <functional>
 #include <utility>
@@ -13,36 +13,14 @@ class EnableDispatch
 {
   public:
     using DispatchFn = std::function<void(NodeStorageAction)>;
-    using StateFn    = std::function<NodeCollection()>;
+    using StateFn    = std::function<NodeStorageState()>;
 
-    EnableDispatch(const DispatchFn& dispatch, const StateFn& state)
-        : m_dispatch(dispatch)
-        , m_state(state)
-    {}
-
-    EnableDispatch(const EnableDispatch& other)
-        : m_dispatch(other.m_dispatch)
-        , m_state(other.m_state)
-    {}
+    EnableDispatch(const DispatchFn& dispatch, const StateFn& state);
+    EnableDispatch(const EnableDispatch& other);
 
   protected:
-    void dispatch(NodeStorageAction action) const
-    {
-        if (m_dispatch)
-        {
-            m_dispatch(std::move(action));
-        }
-    }
-
-    NodeCollection state() const
-    {
-        if (m_state)
-        {
-            return m_state();
-        }
-
-        return NodeCollection();
-    }
+    void dispatch(NodeStorageAction action) const;
+    NodeStorageState fetch_state() const;
 
   private:
     DispatchFn m_dispatch;
