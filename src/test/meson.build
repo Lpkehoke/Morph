@@ -1,6 +1,3 @@
-googletest_dep = dependency('gtest', method: 'pkg-config')
-thread_dep = dependency('threads')
-
 morph_test_src = [
     'immutabletest.cpp',
     'taskqueuetest.cpp'

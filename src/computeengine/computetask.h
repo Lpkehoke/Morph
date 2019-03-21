@@ -1,11 +1,12 @@
 #pragma once
 
-#include "platform/nodestoragetypes.h"
+#include "computeenginetypes.h"
 
-#include "base/immutable/map.h"
+#include "platform/nodestoragetypes.h"
 
 #include <tbb/task.h>
 
+#include <functional>
 #include <set>
 
 namespace computeengine
@@ -14,9 +15,15 @@ namespace computeengine
 class ComputeTask : public tbb::task
 {
   public:
-    using DepsGraph = immutable::Map<platform::NodeId, ComputeTask*>;
+    using SetAttributeFn = std::function<void (platform::AttrId, platform::AttrPtr)>;
+    using GetAttributeFn = std::function<platform::AttrPtr (platform::AttrId)>;
+    using OnReadyFn = std::function<void()>;   
 
-    ComputeTask(platform::NodeId node_id);
+    ComputeTask(
+        platform::NodeId    node_id,
+        SetAttributeFn      set_attr,
+        GetAttributeFn      get_attr,
+        OnReadyFn           on_ready);
 
     virtual tbb::task* execute() override;
 
@@ -28,7 +35,10 @@ class ComputeTask : public tbb::task
     platform::NodeId            m_node_id;
     std::set<platform::NodeId>  m_successors;
     DepsGraph                   m_deps_graph;
-    platform::NodeStorageState  m_state;   
+    platform::NodeStorageState  m_state;
+    SetAttributeFn              m_set_attr;
+    GetAttributeFn              m_get_attr;
+    OnReadyFn                   m_on_ready;
 };
 
 } // namespace computeengine

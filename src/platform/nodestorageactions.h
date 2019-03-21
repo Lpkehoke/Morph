@@ -36,10 +36,17 @@ struct MakeConnection
     std::string     input_knob_name;
 };
 
+struct UpdateAttribute
+{
+    AttrId          id;
+    AttrPtr         value;
+};
+
 using NodeStorageAction = std::variant<
     CreateNode,
     RemoveNode,
     UpdateNodeMetadata,
-    MakeConnection>;
+    MakeConnection,
+    UpdateAttribute>;
 
 } // namespace platform

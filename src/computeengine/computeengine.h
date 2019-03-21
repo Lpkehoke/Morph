@@ -1,6 +1,7 @@
 #pragma once
 
 #include "platform/enabledispatch.h"
+#include "platform/nodestoragetypes.h"
 
 namespace computeengine
 {

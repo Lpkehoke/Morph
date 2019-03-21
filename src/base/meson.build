@@ -1,5 +1,3 @@
-tbb_dep = dependency('TBB', method: 'pkg-config')
-
 base_src = [
     'taskqueue.cpp'
 ]

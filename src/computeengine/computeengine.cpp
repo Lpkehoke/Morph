@@ -1,6 +1,6 @@
 #include "computeengine.h"
 
-#include "computetaskdagbuilder.h"
+#include "computegraph.h"
 
 #include "platform/nodestoragetypes.h"
 
@@ -50,14 +50,14 @@ void ComputeEngine::on_update() const
 
     std::stack<NodeId> nodes_to_process = retrieve_observable_nodes(state);
 
-    ComputeTaskDAGBuilder dag_builder;
+    ComputeGraph compute_graph(*this);
 
     while (!nodes_to_process.empty())
     {
         auto node_id = nodes_to_process.top();
         nodes_to_process.pop();
 
-        dag_builder.add_node(node_id);
+        compute_graph.add_node(node_id);
 
         const auto& node = state.m_nodes.get(node_id);
 
@@ -71,13 +71,13 @@ void ComputeEngine::on_update() const
             {
                 auto referenced_node_id = knob->referenced_node();
                 nodes_to_process.push(referenced_node_id);
-                dag_builder.add_node(referenced_node_id);
-                dag_builder.add_connection(referenced_node_id, node_id);
+                compute_graph.add_node(referenced_node_id);
+                compute_graph.add_connection(referenced_node_id, node_id);
             }
         }
     }
 
-    dag_builder.spawn_compute_tasks(state);
+    compute_graph.spawn_compute_tasks(state);
 }
 
 } // namespace computeengine

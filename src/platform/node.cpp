@@ -64,7 +64,7 @@ Attribute& Node::get_output_knob_attribute(
     KnobPtr knob = m_state->m_knobs.get(knob_id);
 
     AttrId attr_id = knob->attribute(attr_name);
-    AttrPtr attr = m_state->m_attributes.get(attr_id);
+    AttrPtr attr = m_state->m_attributes.mutable_get(attr_id);
     
     return *attr;
 }

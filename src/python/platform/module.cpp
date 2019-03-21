@@ -23,7 +23,18 @@ using namespace platform;
 
 void bind_node()
 {
-    class_<Node, NodePtr>("Node");
+    class_<Node::KnobMap>("KnobMap")
+        .def(
+            "__getitem__",
+            &Node::KnobMap::get,
+            return_value_policy<copy_const_reference>())
+        .def(
+            "__iter__",
+            range(&Node::KnobMap::begin, &Node::KnobMap::end));
+
+    class_<Node, NodePtr>("Node", no_init)
+        .def("input_knobs", &Node::input_knobs)
+        .def("output_knobs", &Node::output_knobs);
 }
 
 void bind_node_collection()
@@ -45,7 +56,13 @@ void bind_node_collection()
 
 void bind_knob()
 {
-    class_<Knob, KnobPtr>("Knob", init<NodeId, std::string, Knob::AttrMap>());
+    class_<Knob, KnobPtr>("Knob", no_init)
+        .def(
+            "__getitem__",
+            &Knob::attribute)
+        .def(
+            "__iter__",
+            range(&Knob::begin, &Knob::end));
 }
 
 void bind_knob_collection()
