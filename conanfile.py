@@ -1,6 +1,5 @@
 from conans import ConanFile, Meson, tools
 
-import glob
 import os
 
 
@@ -13,7 +12,7 @@ class Morph(ConanFile):
         'boost/1.69.0@conan/stable'
     )
 
-    generators = {'pkg_config'}
+    generators = {}
 
     def configure(self):
         self.options['boost'].without_python = False
@@ -49,28 +48,55 @@ class Morph(ConanFile):
         self.options['boost'].without_test = True
         self.options['boost'].without_type_erasure = True
 
-    # Kludge to make Meson find boost python library. Will be resolved with #21.
-    def create_boost_python_symlink(self):
-        boost_libs_path = self.deps_cpp_info['boost'].lib_paths[0]
+    def generate_meson_subproject(self, subdirs_path, name, libs, lib_dirs, include_dirs):
+        project_dir = os.path.join(subdirs_path, name)
+        project_file = os.path.join(project_dir, 'meson.build')
 
-        path = glob.glob(boost_libs_path + '/*python3*.so')[0]
+        if not os.path.exists(project_dir):
+            os.mkdir(project_dir)
+        
+        with open(project_file, 'w') as project:
+            print(f"project('{name}', 'cpp')", file=project)
+            print("cpp = meson.get_compiler('cpp')", file=project)
 
-        new_name = os.path.basename(path)
-        new_name = new_name[0:new_name.find('python3') + 7] + '.so'
-        try:
-            os.symlink(path, os.path.join(boost_libs_path, new_name))
-        except:
-            pass
+            declared_lib_names = []
+            for lib in libs:
+                if (lib == 'pthreads'):
+                    print(f"{lib} = dependency('threads')")
+                else:
+                    print(f"{lib} = cpp.find_library('{lib}', dirs: {str(lib_dirs)})", file=project)
+                declared_lib_names.append(lib)
+
+            print(f"include_dirs = include_directories({str(include_dirs)})", file=project)
+            
+            print(f"{name.lower()}_dep = declare_dependency(", file=project)
+            deps_list = ', '.join(declared_lib_names)
+            print(f"dependencies: [{deps_list}],", file=project)
+            print(f"include_directories: include_dirs)", file=project)
+
+    def create_meson_subprojects(self):
+        subprojects_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'subprojects')
+
+        if not os.path.exists(subprojects_path):
+            os.mkdir(subprojects_path)
+        
+        deps = self.deps_cpp_info.deps
+
+        for dependency in deps:
+            libs = self.deps_cpp_info[dependency].libs
+            lib_dirs = self.deps_cpp_info[dependency].lib_paths
+            include_dirs = self.deps_cpp_info[dependency].include_paths
+            self.generate_meson_subproject(
+                subprojects_path,
+                dependency,
+                libs,
+                lib_dirs,
+                include_dirs)
 
     def build(self):
-        self.create_boost_python_symlink()
-
-        tools.os.environ.update(
-            {
-                'BOOST_INCLUDEDIR': self.deps_cpp_info['boost'].include_paths[0],
-                'BOOST_LIBRARYDIR': self.deps_cpp_info['boost'].lib_paths[0]
-            }
-        )
+        self.create_meson_subprojects()
 
         meson = Meson(self)
         meson.configure(build_folder='build')
