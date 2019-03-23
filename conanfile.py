@@ -15,6 +15,7 @@ class Morph(ConanFile):
     generators = {}
 
     def configure(self):
+        self.options['TBB'].shared = True
         self.options['boost'].without_python = False
         self.options['boost'].shared = True
 
@@ -64,7 +65,10 @@ class Morph(ConanFile):
                 if (lib == 'pthreads'):
                     print(f"{lib} = dependency('threads')")
                 else:
-                    print(f"{lib} = cpp.find_library('{lib}', dirs: {str(lib_dirs)})", file=project)
+                    print(f"{lib} = cpp.find_library('{lib}', dirs: {str(lib_dirs)}, required: false)", file=project)
+                    print(f"if not {lib}.found()", file=project)
+                    print(f"{lib} = cpp.find_library('{lib}', required: true)", file=project)
+                    print("endif", file=project)
                 declared_lib_names.append(lib)
 
             print(f"include_dirs = include_directories({str(include_dirs)})", file=project)

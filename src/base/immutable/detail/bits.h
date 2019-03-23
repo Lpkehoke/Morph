@@ -2,6 +2,9 @@
 
 #include <cstddef>
 #include <cstdint>
+#ifdef _WIN32
+#include <intrin.h>
+#endif
 
 namespace immutable
 {
@@ -25,7 +28,11 @@ constexpr T mask = (1ul << B) - 1ul;
 
 inline Count popcount(std::uint64_t x)
 {
+#ifdef _WIN32
+	return __popcnt64(x);
+#else
     return __builtin_popcountll(x);
+#endif
 }
 
 } // namespace detail

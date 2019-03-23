@@ -5,6 +5,6 @@ tbb_dep = subproject('TBB').get_variable('tbb_dep')
 googletest_dep = subproject('gtest').get_variable('gtest_dep')
 
 thread_dep = dependency('threads')
-python_dep = dependency('python-3.6')
+python_dep = dependency('python3')
 
 subdir('src')
