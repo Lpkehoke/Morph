@@ -9,45 +9,13 @@ class Morph(ConanFile):
     requires = (
         'TBB/2019_U4@conan/stable',
         'gtest/1.8.1@bincrafters/stable',
-        'boost/1.69.0@conan/stable'
+        'pybind11/2.2.3@conan/stable'
     )
 
     generators = {}
 
     def configure(self):
         self.options['TBB'].shared = True
-        self.options['boost'].without_python = False
-        self.options['boost'].shared = True
-
-        # Kludge to optimize build times. Will be resolved with #21.
-        self.options['boost'].without_math = True
-        self.options['boost'].without_wave = True
-        self.options['boost'].without_container = True
-        self.options['boost'].without_contract = True
-        self.options['boost'].without_exception = True
-        self.options['boost'].without_graph = True
-        self.options['boost'].without_iostreams = True
-        self.options['boost'].without_locale = True
-        self.options['boost'].without_log = True
-        self.options['boost'].without_program_options = True
-        self.options['boost'].without_random = True
-        self.options['boost'].without_regex = True
-        self.options['boost'].without_mpi = True
-        self.options['boost'].without_serialization = True
-        self.options['boost'].without_coroutine = True
-        self.options['boost'].without_fiber = True
-        self.options['boost'].without_context = True
-        self.options['boost'].without_timer = True
-        self.options['boost'].without_thread = True
-        self.options['boost'].without_chrono = True
-        self.options['boost'].without_date_time = True
-        self.options['boost'].without_atomic = True
-        self.options['boost'].without_filesystem = True
-        self.options['boost'].without_system = True
-        self.options['boost'].without_graph_parallel = True
-        self.options['boost'].without_stacktrace = True
-        self.options['boost'].without_test = True
-        self.options['boost'].without_type_erasure = True
 
     def generate_meson_subproject(self, subdirs_path, name, libs, lib_dirs, include_dirs):
         project_dir = os.path.join(subdirs_path, name)
@@ -112,7 +80,3 @@ class Morph(ConanFile):
         # copy tbb libs
         tbb_lib_dir = self.deps_cpp_info['TBB'].libdirs[0]
         self.copy('*.so*', src=tbb_lib_dir, dst='', keep_path=False)
-
-        # copy boost libs
-        boost_lib_dir = self.deps_cpp_info['boost'].libdirs[0]
-        self.copy('*.so*', src=boost_lib_dir, dst='', keep_path=False)

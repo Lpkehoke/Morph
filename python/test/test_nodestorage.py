@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from python.platform import NodeStorage, NodeFactoryRegistry, KnobsBuilder, Logger
+from python.platform import NodeStorage, NodeFactoryRegistry, KnobModelRegistry, Logger
 
 
 class TestNodeStorage(unittest.TestCase):
@@ -9,10 +9,10 @@ class TestNodeStorage(unittest.TestCase):
     def setUp(self):
         self.node_factory_registry = NodeFactoryRegistry()
         self.logger = Logger()
-        self.knobs_builder = KnobsBuilder()
+        self.knob_model_registry = KnobModelRegistry()
         self.node_storage = NodeStorage(
             self.node_factory_registry,
-            self.knobs_builder,
+            self.knob_model_registry,
             self.logger)
 
     def test_dispatch(self):

@@ -3,15 +3,15 @@
 #include "platform/nodestorageactions.h"
 #include "platform/nodestoragetypes.h"
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include <exception>
 
 using namespace platform;
-using namespace boost::python;
+using namespace pybind11;
 
 template <typename T>
-T from_dict(const boost::python::dict& input);
+T from_dict(const dict& input);
 
 
 //
@@ -22,25 +22,21 @@ template <>
 Metadata from_dict(const dict& input)
 {
     Metadata metadata;
-    auto items = input.items();
-    auto items_size = len(items);
 
-    for (auto idx = 0; idx < items_size; ++idx)
+    for (const auto& pair : input)
     {
-        object key = items[idx][0];
-        std::string key_str = extract<std::string>(key);
-
-        object val = items[idx][1];
+        std::string key_str = pair.first.cast<std::string>();
+        handle val = pair.second;
 
         if (PyObject_TypeCheck(val.ptr(), &PyFloat_Type)
             || PyObject_TypeCheck(val.ptr(), &PyLong_Type))
         {
-            double val_double = PyFloat_AsDouble(val.ptr());
+            double val_double = val.cast<double>();
             metadata.mutable_set(key_str, val_double);
         }
         else if (PyObject_TypeCheck(val.ptr(), &PyUnicode_Type))
         {
-            std::string val_str = extract<std::string>(val);
+            std::string val_str = val.cast<std::string>();
             metadata.mutable_set(key_str, val_str);
         }
         else
@@ -62,10 +58,10 @@ CreateNode from_dict(const dict& input)
 {
     CreateNode create_node;
 
-    create_node.id = extract<NodeId>(input["id"]);
-    create_node.model = extract<std::string>(input["model"]);
+    create_node.id = input["id"].cast<NodeId>();
+    create_node.model = input["model"].cast<std::string>();
 
-    dict metadata_dict = extract<dict>(input["metadata"]);
+    dict metadata_dict = input["metadata"].cast<dict>();
     create_node.metadata = from_dict<Metadata>(metadata_dict);
 
     return create_node;
@@ -81,7 +77,7 @@ RemoveNode from_dict(const dict& input)
 {
     RemoveNode remove_node;
 
-    remove_node.id = extract<NodeId>(input["id"]);
+    remove_node.id = (input["id"].cast<NodeId>());
 
     return remove_node;
 }
@@ -95,9 +91,9 @@ template <>
 UpdateNodeMetadata from_dict(const dict& input)
 {
     UpdateNodeMetadata update_node_metadata;
-    update_node_metadata.id = extract<NodeId>(input["id"]);
+    update_node_metadata.id = input["id"].cast<NodeId>();
     
-    dict metadata_dict = extract<dict>(input["metadata"]);
+    dict metadata_dict = input["metadata"].cast<dict>();
     update_node_metadata.metadata = from_dict<Metadata>(metadata_dict);
 
     return update_node_metadata;
@@ -113,10 +109,10 @@ MakeConnection from_dict(const dict& input)
 {
     MakeConnection make_connection;
 
-    make_connection.input_node_id = extract<NodeId>(input["input_node_id"]);
-    make_connection.input_knob_name = extract<std::string>(input["input_knob_name"]);
-    make_connection.output_node_id = extract<NodeId>(input["output_node_id"]);
-    make_connection.output_knob_name = extract<std::string>(input["output_knob_name"]);
+    make_connection.input_node_id = input["input_node_id"].cast<NodeId>();
+    make_connection.input_knob_name = input["input_knob_name"].cast<std::string>();
+    make_connection.output_node_id = input["output_node_id"].cast<NodeId>();
+    make_connection.output_knob_name = input["output_knob_name"].cast<std::string>();
 
     return make_connection;
 }

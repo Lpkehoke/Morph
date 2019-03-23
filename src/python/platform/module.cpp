@@ -1,5 +1,7 @@
 #include "pythondictconversion.inl"
 
+#include "python/base/bindimmutablemap.h"
+
 #include "platform/knobmodelregistry.h"
 #include "platform/logger.h"
 #include "platform/node.h"
@@ -9,44 +11,31 @@
 #include "platform/nodestorageactions.h"
 #include "platform/nodestoragetypes.h"
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include <exception>
 
-using namespace boost::python;
 using namespace platform;
+using namespace pybind11;
 
 
 //
 //  Bind Node.
 //
 
-void bind_node()
+void bind_node(const handle& m)
 {
-    class_<Node::KnobMap>("KnobMap")
-        .def(
-            "__getitem__",
-            &Node::KnobMap::get,
-            return_value_policy<copy_const_reference>())
-        .def(
-            "__iter__",
-            range(&Node::KnobMap::begin, &Node::KnobMap::end));
+    bind_map<Node::KnobMap>(m, "KnobMap");
 
-    class_<Node, NodePtr>("Node", no_init)
+    class_<Node, NodePtr>(m, "Node")
         .def("input_knobs", &Node::input_knobs)
         .def("output_knobs", &Node::output_knobs);
 }
 
-void bind_node_collection()
+void bind_node_collection(const handle& m)
 {
-    class_<NodeCollection>("NodeCollection")
-        .def(
-            "__getitem__",
-            &NodeCollection::get,
-            return_internal_reference<>())
-        .def(
-            "__iter__",
-            range(&NodeCollection::begin, &NodeCollection::end));
+    bind_map<NodeCollection>(m, "NodeCollection");
 }
 
 
@@ -54,27 +43,14 @@ void bind_node_collection()
 //  Bind Knob.
 //
 
-void bind_knob()
+void bind_knob(const handle& m)
 {
-    class_<Knob, KnobPtr>("Knob", no_init)
-        .def(
-            "__getitem__",
-            &Knob::attribute)
-        .def(
-            "__iter__",
-            range(&Knob::begin, &Knob::end));
+    class_<Knob, KnobPtr>(m, "Knob");
 }
 
-void bind_knob_collection()
+void bind_knob_collection(const handle& m)
 {
-    class_<KnobCollection>("KnobKollection")
-        .def(
-            "__getitem__",
-            &KnobCollection::get,
-            return_internal_reference<>())
-        .def(
-            "__iter__",
-            range(&KnobCollection::begin, &KnobCollection::end));
+    bind_map<KnobCollection>(m, "KnobKollection");
 }
 
 
@@ -82,68 +58,14 @@ void bind_knob_collection()
 //  Bind Metadata.
 //
 
-namespace
+void bind_metadata(const handle& m)
 {
-
-struct MetadataPropertyConverter
-{
-    static PyObject* convert(const MetadataProperty& property)
-    {
-        return std::visit(
-            [](const auto& value)
-            {
-                return convert(value); 
-            }, property);
-    }
-
-    static PyObject* convert(const std::string& value)
-    {
-        return PyUnicode_FromString(value.c_str());
-    }
-
-    static PyObject* convert(double value)
-    {
-        return PyFloat_FromDouble(value);
-    }
-};
-
-struct MetadataPairConverter
-{
-    static PyObject* convert(const Metadata::Pair& pair)
-    {
-        auto key = PyUnicode_FromString(pair.first.c_str());
-        auto val = MetadataPropertyConverter::convert(pair.second);
-
-        auto tuple = PyTuple_Pack(2, key, val);
-
-        return tuple;
-    }
-};
-
-} // namespace
-
-void bind_metadata()
-{
-    to_python_converter<MetadataProperty, MetadataPropertyConverter>();
-    to_python_converter<Metadata::Pair, MetadataPairConverter>();
-
-    class_<Metadata>("Metadata")
-        .def(
-            "__getitem__",
-            &Metadata::get,
-            boost::python::return_value_policy<copy_const_reference>())
-        .def(
-            "__iter__",
-            range(&Metadata::begin, &Metadata::end));
+    bind_map<Metadata>(m, "Metadata");
 }
 
-void bind_metadata_collection()
+void bind_metadata_collection(const handle& m)
 {
-    class_<MetadataCollection>("MetadataCollection")
-        .def(
-            "__getitem__",
-            &MetadataCollection::get,
-            boost::python::return_value_policy<copy_const_reference>());
+    bind_map<MetadataCollection>(m, "MetadataCollection");
 }
 
 
@@ -225,7 +147,7 @@ NodeStorageAdaptor::NodeStorageAdaptor(
 
 void NodeStorageAdaptor::dispatch(const dict& action)
 {
-    std::string action_type = extract<std::string>(action["type"]);
+    std::string action_type = str(action["type"]);
 
     if (action_type == "CreateNode")
     {
@@ -258,7 +180,7 @@ void NodeStorageAdaptor::subscribe(const object& on_update)
     NodeStorage::subscribe(
         [on_update]()
         {
-            auto state = PyGILState_Ensure();
+            gil_scoped_acquire gil;
 
             try
             {
@@ -266,68 +188,64 @@ void NodeStorageAdaptor::subscribe(const object& on_update)
             }
             catch(const error_already_set&)
             {
-                PyGILState_Release(state);
                 // TODO: supply exception info here.
                 throw std::runtime_error("Python exception occured during callback evaluation.");
             }
-            
-            PyGILState_Release(state);
         });
 }
 
 } // namespace
 
-void bind_node_storage()
+void bind_node_storage(const handle& m)
 {
-    class_<NodeStorageState>("NodeStorageState")
-        .add_property(
+    class_<NodeStorageState>(m, "NodeStorageState")
+        .def_property_readonly(
             "nodes",
-            +[](const NodeStorageState& state)
+            [](const NodeStorageState& state)
             {
                 return state.m_nodes;
             })
-        .add_property(
+        .def_property_readonly(
             "knobs",
-            +[](const NodeStorageState& state)
+            [](const NodeStorageState& state)
             {
                 return state.m_knobs;
             })
-        .add_property(
+        .def_property_readonly(
             "attributes",
-            +[](const NodeStorageState& state)
+            [](const NodeStorageState& state)
             {
                 return state.m_attributes;
             })
-        .add_property(
+        .def_property_readonly(
             "node_metadata",
-            +[](const NodeStorageState& state)
+            [](const NodeStorageState& state)
             {
                 return state.m_node_metadata;
             });
 
-    class_<NodeFactoryRegistryAdaptor>("NodeFactoryRegistry");
-    class_<KnobModelRegistry>("KnobModelRegistry");
-    class_<Logger>("Logger");
+    class_<NodeFactoryRegistryAdaptor>(m, "NodeFactoryRegistry")
+        .def(init<>());
+    class_<KnobModelRegistry>(m, "KnobModelRegistry")
+        .def(init<>());
+    class_<Logger>(m, "Logger")
+        .def(init<>());
 
-    class_<NodeStorageAdaptor>(
-        "NodeStorage",
-        init<NodeFactoryRegistryAdaptor*, KnobModelRegistry*, Logger*>())
+    class_<NodeStorageAdaptor>(m, "NodeStorage")
+        .def(init<NodeFactoryRegistryAdaptor*, KnobModelRegistry*, Logger*>())
         .def("dispatch", &NodeStorageAdaptor::dispatch)
         .def("state", &NodeStorageAdaptor::state)
         .def("subscribe", &NodeStorageAdaptor::subscribe);
 
 }
 
-
-//
-//  Bind platform.
-//
-
-BOOST_PYTHON_MODULE(_platform)
+PYBIND11_MODULE(_platform, m)
 {
-    bind_node();
-    bind_node_collection();
-    bind_metadata();
-    bind_metadata_collection();
-    bind_node_storage();
+    bind_node(m);
+    bind_node_collection(m);
+    bind_knob(m);
+    bind_knob_collection(m);
+    bind_metadata(m);
+    bind_metadata_collection(m);
+    bind_node_storage(m);
 }

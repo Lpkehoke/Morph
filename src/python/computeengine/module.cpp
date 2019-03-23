@@ -1,16 +1,16 @@
 #include "computeengine/computeengine.h"
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include <exception>
 
-using namespace boost::python;
+using namespace pybind11;
 using namespace computeengine;
 
-BOOST_PYTHON_MODULE(_computeengine)
+PYBIND11_MODULE(_computeengine, m)
 {
 
-class_<ComputeEngine>("ComputeEngine", no_init);
+class_<ComputeEngine>(m, "ComputeEngine");
 
 }
 

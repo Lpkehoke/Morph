@@ -12,7 +12,7 @@ bindplatform = shared_library(
     include_directories: root_include_dir,
     dependencies: [
         platform_dep,
-        boost_dep,
+        pybind_dep,
         python_dep],
     name_prefix: ''
 )
@@ -24,7 +24,7 @@ bindcomputeengine = shared_library(
     dependencies: [
         computeengine_dep,
         platform_dep,
-        boost_dep,
+        pybind_dep,
         python_dep],
     name_prefix: ''
 )
