@@ -4,7 +4,6 @@
 #include "nodestoragetypes.h"
 
 #include <functional>
-#include <utility>
 
 namespace platform
 {

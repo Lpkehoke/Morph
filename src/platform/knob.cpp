@@ -1,7 +1,7 @@
 #include "knob.h"
 
 #include <exception>
-#include <memory>
+#include <utility>
 #include <variant>
 
 
@@ -38,6 +38,11 @@ AttrId Knob::attribute(const std::string& attr_name) const
 NodeId Knob::owner() const
 {
     return m_owner;
+}
+
+const std::string& Knob::model() const
+{
+    return m_model_name;
 }
 
 bool Knob::is_reference() const
@@ -86,7 +91,7 @@ bool Knob::accept(const Knob& other) const
     return true;
 }
 
-KnobPtr Knob::connect(const NodeId node_id, const std::string& knob_name)
+KnobPtr Knob::connect(const NodeId node_id, const std::string& knob_name) const
 {
     if (is_reference())
     {
@@ -99,6 +104,11 @@ KnobPtr Knob::connect(const NodeId node_id, const std::string& knob_name)
         KnobRef {node_id, knob_name}));
 
     return result;
+}
+
+KnobPtr Knob::disconnect(AttrMap attr_map) const
+{
+    throw std::logic_error("Not implemented.");
 }
 
 Knob::AttrMap::Iterator Knob::begin() const

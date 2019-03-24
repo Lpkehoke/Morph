@@ -1,6 +1,7 @@
 #include "nodestorage.h"
 
 #include "attribute.h"
+#include "knob.h"
 #include "knobmodelregistry.h"
 #include "logger.h"
 #include "node.h"
@@ -9,10 +10,14 @@
 #include "nodestorageactions.h"
 #include "nodestoragetypes.h"
 
+#include "base/immutable/map.h"
 #include "base/taskqueue.h"
 
 #include <exception>
 #include <memory>
+#include <string>
+#include <utility>
+#include <variant>
 #include <vector>
 
 namespace
@@ -145,6 +150,12 @@ class Reducer
             input_knob_id,
             connected_input_knob);
 
+        return next_state;
+    }
+
+    NodeStorageState reduce(NodeStorageState&& state, BreakConnection&& action)
+    {
+        auto next_state = std::move(state);
         return next_state;
     }
 

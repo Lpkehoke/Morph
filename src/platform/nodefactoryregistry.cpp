@@ -3,6 +3,7 @@
 #include "nodefactory.h"
 
 #include <exception>
+#include <utility>
 
 namespace platform
 {

@@ -5,6 +5,7 @@
 #include <tbb/task.h>
 
 #include <functional>
+#include <utility>
 
 namespace base
 {

@@ -2,19 +2,26 @@
 
 #include "python/base/bindimmutablemap.h"
 
+#include "platform/knob.h"
 #include "platform/knobmodelregistry.h"
 #include "platform/logger.h"
 #include "platform/node.h"
 #include "platform/nodefactory.h"
 #include "platform/nodefactoryregistry.h"
 #include "platform/nodestorage.h"
-#include "platform/nodestorageactions.h"
 #include "platform/nodestoragetypes.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 #include <exception>
+#include <string>
+#include <utility>
+
+namespace platform { struct CreateNode; }
+namespace platform { struct MakeConnection; }
+namespace platform { struct RemoveNode; }
+namespace platform { struct UpdateNodeMetadata; }
 
 using namespace platform;
 using namespace pybind11;

@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <utility>
 
 using namespace immutable;
 using namespace testing;

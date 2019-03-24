@@ -1,11 +1,12 @@
 #pragma once
 
-#include "knob.h"
 #include "nodestoragetypes.h"
 
 #include "base/immutable/map.h"
 
 #include <string>
+
+namespace platform { class Attribute; }
 
 namespace platform
 {

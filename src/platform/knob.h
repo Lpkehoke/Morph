@@ -20,12 +20,14 @@ class Knob
 
     AttrId attribute(const std::string& attr_name) const;
     
-    NodeId owner() const;
+    NodeId              owner() const;
+    const std::string&  model() const;
 
     bool        is_reference() const;
     NodeId      referenced_node() const;
     bool        accept(const Knob& other) const;
-    KnobPtr     connect(const NodeId node_id, const std::string& knob_name);
+    KnobPtr     connect(const NodeId node_id, const std::string& knob_name) const;
+    KnobPtr     disconnect(AttrMap attr_map) const;
 
     AttrMap::Iterator begin() const;
     AttrMap::Iterator end() const;

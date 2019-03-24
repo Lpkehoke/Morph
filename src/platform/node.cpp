@@ -1,7 +1,9 @@
 #include "node.h"
+#include "knob.h"
 
 #include <exception>
 
+namespace platform { class Attribute; }
 
 namespace platform
 {

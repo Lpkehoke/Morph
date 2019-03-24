@@ -1,8 +1,7 @@
 #include "knobmodelregistry.h"
 
-#include "knob.h"
-
 #include <exception>
+#include <utility>
 
 namespace platform
 {

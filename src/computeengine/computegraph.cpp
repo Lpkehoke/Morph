@@ -2,9 +2,12 @@
 
 #include "computetask.h"
 
+#include "platform/nodestorageactions.h"
+
 #include <tbb/task.h>
 
 #include <exception>
+#include <utility>
 
 using namespace platform;
 

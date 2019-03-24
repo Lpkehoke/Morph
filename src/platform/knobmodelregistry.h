@@ -1,13 +1,8 @@
 #pragma once
 
-#include "knob.h"
-
 #include <map>
 #include <string>
 #include <vector>
-
-namespace platform { class Attribute; }
-namespace platform { class Knob; }
 
 
 namespace platform
