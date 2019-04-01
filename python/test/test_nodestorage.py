@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from python.platform import NodeStorage, NodeFactoryRegistry, KnobModelRegistry, Logger
+from python.platform import NodeStorage, NodeFactoryRegistry, Logger
 
 
 class TestNodeStorage(unittest.TestCase):
@@ -9,14 +9,11 @@ class TestNodeStorage(unittest.TestCase):
     def setUp(self):
         self.node_factory_registry = NodeFactoryRegistry()
         self.logger = Logger()
-        self.knob_model_registry = KnobModelRegistry()
         self.node_storage = NodeStorage(
             self.node_factory_registry,
-            self.knob_model_registry,
             self.logger)
 
     def test_dispatch(self):
-        node_id = 100
         node_metadata = {
             'key': 'cool',
             'float': 1.1254,
@@ -26,7 +23,6 @@ class TestNodeStorage(unittest.TestCase):
         self.node_storage.dispatch({
             "type": "CreateNode",
             "model": "Dummy",
-            "id": node_id,
             "metadata": node_metadata
         })
 
@@ -36,9 +32,9 @@ class TestNodeStorage(unittest.TestCase):
 
         state = self.node_storage.state()
 
-        self.assertIsNotNone(state.nodes[node_id])
+        self.assertIsNotNone(state.nodes[0])
 
-        meta = state.node_metadata[node_id]
+        meta = state.node_metadata[0]
         for key, value in meta:
             self.assertEqual(node_metadata[key], value)
 

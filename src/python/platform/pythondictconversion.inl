@@ -27,21 +27,25 @@ Metadata from_dict(const dict& input)
     {
         std::string key_str = pair.first.cast<std::string>();
         handle val = pair.second;
-
-        if (PyObject_TypeCheck(val.ptr(), &PyFloat_Type)
-            || PyObject_TypeCheck(val.ptr(), &PyLong_Type))
+        
+        if (PyFloat_Check(val.ptr()))
         {
             double val_double = val.cast<double>();
             metadata.mutable_set(key_str, val_double);
         }
-        else if (PyObject_TypeCheck(val.ptr(), &PyUnicode_Type))
+        else if (PyUnicode_Check(val.ptr()))
         {
             std::string val_str = val.cast<std::string>();
             metadata.mutable_set(key_str, val_str);
         }
+        else if (PyBool_Check(val.ptr()))
+        {
+            bool val_bool = val.cast<bool>();
+            metadata.mutable_set(key_str, val_bool);
+        }
         else
         {
-            throw std::runtime_error("Metadata dictionary only supports float and str types.");
+            throw std::runtime_error("Metadata dictionary only supports float, str and bool types.");
         }
     }
 
@@ -57,8 +61,6 @@ template <>
 CreateNode from_dict(const dict& input)
 {
     CreateNode create_node;
-
-    create_node.id = input["id"].cast<NodeId>();
     create_node.model = input["model"].cast<std::string>();
 
     dict metadata_dict = input["metadata"].cast<dict>();

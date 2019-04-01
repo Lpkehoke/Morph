@@ -4,6 +4,7 @@
 
 #include "base/immutable/map.h"
 
+#include <memory>
 #include <variant>
 #include <string>
 
@@ -11,7 +12,7 @@
 namespace platform
 {
 
-class Knob
+class Knob : public std::enable_shared_from_this<Knob>
 {
   public:
     using AttrMap = immutable::Map<std::string, AttrId>;
@@ -26,8 +27,8 @@ class Knob
     bool        is_reference() const;
     NodeId      referenced_node() const;
     bool        accept(const Knob& other) const;
-    KnobPtr     connect(const NodeId node_id, const std::string& knob_name) const;
-    KnobPtr     disconnect(AttrMap attr_map) const;
+    KnobPtr     connect(const NodeId node_id, const std::string& knob_name);
+    KnobPtr     disconnect() const;
 
     AttrMap::Iterator begin() const;
     AttrMap::Iterator end() const;
@@ -37,6 +38,7 @@ class Knob
     {
         NodeId      node_id;
         std::string knob_name;
+        KnobPtr     disconnected;
     };
 
     using Value = std::variant<std::monostate, AttrMap, KnobRef>;

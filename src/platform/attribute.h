@@ -1,29 +1,26 @@
 #pragma once
 
+#include <cstdint>
 #include <variant>
 #include <utility>
 
 namespace platform
 {
 
-//
-//  Attribute is a container for a value.
-//  It's lifetime is managed by reference counting.
-//
 class Attribute
 {
   public:
+    Attribute();
     Attribute(const Attribute& other);
-    Attribute(float value);
 
-    //
-    //  If attribute value is float, returns the held value
-    //  throws std::bad_variant_access otherwise.
-    //
-    float as_float() const;
+    template <typename T>
+    T& cast();
+
+    template <typename T>
+    const T& cast() const;
 
   private:
-    using Value = std::variant<float>;
+    using Value = std::variant<std::int64_t, std::uint64_t, double>;
 
     Value m_value;
 };

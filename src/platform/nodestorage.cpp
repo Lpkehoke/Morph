@@ -2,7 +2,6 @@
 
 #include "attribute.h"
 #include "knob.h"
-#include "knobmodelregistry.h"
 #include "logger.h"
 #include "node.h"
 #include "nodefactory.h"
@@ -30,13 +29,9 @@ class Reducer
   public:
     Reducer(
         NodeFactoryRegistry*    node_factoryregistry,
-        KnobModelRegistry*      knob_model_registry,
         Logger*                 logger)
         : m_node_factory_registry(node_factoryregistry)
-        , m_knob_model_registry(knob_model_registry)
         , m_logger(logger)
-        , m_next_attr_id(0u)
-        , m_next_knob_id(0u)
     {}
 
     NodeStorageState reduce(NodeStorageState state, NodeStorageAction&& action)
@@ -51,53 +46,12 @@ class Reducer
 
     NodeStorageState reduce(NodeStorageState&& state, CreateNode&& action)
     {
-        auto next_state = std::move(state);
-
         auto factory = m_node_factory_registry->get_node_factory(action.model);
 
-        NodeFactory::KnobsMap knobs_map;
+        auto node_id = state.m_next_node_id;
+        auto next_state = factory->create(std::move(state));
 
-        auto knobs_info = factory->knobs_init_info();
-        for (const auto& knob_info : knobs_info)
-        {
-            auto& knob_name = knob_info.first;
-            auto& knob_model = knob_info.second.model;
-            auto& default_values = knob_info.second.default_values;
-
-            auto& knob_model_descriptor = m_knob_model_registry->get_model_descriptor(knob_model);
-
-            for (const auto& required_knob_attr : knob_model_descriptor.attributes)
-            {
-                if (default_values.find(required_knob_attr) == default_values.end())
-                {
-                    throw std::runtime_error("Default value for " + required_knob_attr + " was not provided.");
-                }
-            }
-
-            Knob::AttrMap knob_attr_map;
-            for (const auto& attr_pair : default_values)
-            {
-                AttrId attr_id = m_next_attr_id++;
-
-                AttrPtr attr = std::make_shared<Attribute>(*attr_pair.second);
-                
-                next_state.m_attributes.mutable_set(attr_id, attr);
-                knob_attr_map.mutable_set(attr_pair.first, attr_id);
-            }
-
-            KnobPtr knob = std::make_shared<Knob>(action.id, knob_model, knob_attr_map);
-            KnobId knob_id = m_next_knob_id++;
-
-            // TODO: populate knob metadata.
-            next_state.m_knobs.mutable_set(knob_id, std::move(knob));
-
-            knobs_map.emplace(knob_name, knob_id);
-        }
-
-        NodePtr new_node(factory->create(knobs_map));
-
-        next_state.m_nodes.mutable_set(action.id, std::move(new_node));
-        next_state.m_node_metadata.mutable_set(action.id, std::move(action.metadata));
+        next_state.m_node_metadata.mutable_set(node_id, std::move(action.metadata));
 
         return next_state;
     }
@@ -156,15 +110,17 @@ class Reducer
     NodeStorageState reduce(NodeStorageState&& state, BreakConnection&& action)
     {
         auto next_state = std::move(state);
+        auto& node = next_state.m_nodes[action.input_node_id];
+        auto knob_id = node->input_knobs()[action.input_knob_name];
+        auto& knob = next_state.m_knobs[knob_id];
+
+        next_state.m_knobs.mutable_set(knob_id, knob->disconnect());
         return next_state;
     }
 
   private:
     NodeFactoryRegistry*    m_node_factory_registry;
-    KnobModelRegistry*      m_knob_model_registry;
     Logger*                 m_logger;
-    AttrId                  m_next_attr_id;
-    KnobId                  m_next_knob_id;
 };
 
 } // namespace
@@ -176,9 +132,8 @@ struct NodeStorage::Impl
 {
     Impl(
         NodeFactoryRegistry*    node_factory_registry,
-        KnobModelRegistry*      knob_model_registry,
         Logger*                 logger)
-        : m_reducer(node_factory_registry, knob_model_registry, logger)
+        : m_reducer(node_factory_registry, logger)
         , m_logger(logger)
     {}
 
@@ -191,9 +146,8 @@ struct NodeStorage::Impl
 
 NodeStorage::NodeStorage(
     NodeFactoryRegistry*    node_factory_registry,
-    KnobModelRegistry*      knob_model_registry,
     Logger*                 logger)
-    : impl(new Impl(node_factory_registry, knob_model_registry, logger))
+    : impl(new Impl(node_factory_registry, logger))
 {}
 
 NodeStorage::~NodeStorage()

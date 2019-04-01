@@ -2,8 +2,8 @@
 
 #include "python/base/bindimmutablemap.h"
 
+#include "platform/attribute.h"
 #include "platform/knob.h"
-#include "platform/knobmodelregistry.h"
 #include "platform/logger.h"
 #include "platform/node.h"
 #include "platform/nodefactory.h"
@@ -62,6 +62,20 @@ void bind_knob_collection(const handle& m)
 
 
 //
+//  Bind Attribute.
+//
+
+void bind_attribute(const handle& m)
+{
+    class_<Attribute, AttrPtr>(m, "Attribute");
+}
+
+void bind_attr_collection(const handle& m)
+{
+    bind_map<AttributeCollection>(m, "AttributeCollection");
+}
+
+//
 //  Bind Metadata.
 //
 
@@ -101,19 +115,18 @@ class DummyNode : public Node
 class DummyNodeFactory : public NodeFactory
 {
   public:
-    virtual Node* create(const KnobsMap& knobs) const override
+    virtual NodeStorageState create(NodeStorageState state) const override
     {
-        return new DummyNode();
+        auto node = std::make_shared<DummyNode>();
+        auto next_state = std::move(state);
+        next_state.m_nodes.mutable_set(next_state.m_next_node_id++, std::move(node));
+
+        return next_state;
     }
 
     virtual std::string model() const override
     {
         return "Dummy";
-    }
-
-    virtual KnobInitInfoMap knobs_init_info() const override
-    {
-        return KnobInitInfoMap();
     }
 };
 
@@ -122,9 +135,9 @@ class NodeFactoryRegistryAdaptor : public NodeFactoryRegistry
   public:
     NodeFactoryRegistryAdaptor()
     {
-        auto factory = new DummyNodeFactory();
+        auto node_factory = new DummyNodeFactory();
 
-        register_node_factory(factory);
+        register_node_factory(node_factory);
     }
 };
 
@@ -132,8 +145,7 @@ class NodeStorageAdaptor : public NodeStorage
 {
   public:
     NodeStorageAdaptor(
-        NodeFactoryRegistryAdaptor* registry,
-        KnobModelRegistry*         builder,
+        NodeFactoryRegistryAdaptor* node_factory_registry,
         Logger*                     logger);
 
     void dispatch(const dict& action);
@@ -146,10 +158,9 @@ class NodeStorageAdaptor : public NodeStorage
 //
 
 NodeStorageAdaptor::NodeStorageAdaptor(
-    NodeFactoryRegistryAdaptor* registry,
-    KnobModelRegistry*         builder,
+    NodeFactoryRegistryAdaptor* node_factory_registry,
     Logger*                     logger)
-    : NodeStorage(registry, builder, logger)
+    : NodeStorage(node_factory_registry, logger)
 {}
 
 void NodeStorageAdaptor::dispatch(const dict& action)
@@ -233,13 +244,11 @@ void bind_node_storage(const handle& m)
 
     class_<NodeFactoryRegistryAdaptor>(m, "NodeFactoryRegistry")
         .def(init<>());
-    class_<KnobModelRegistry>(m, "KnobModelRegistry")
-        .def(init<>());
     class_<Logger>(m, "Logger")
         .def(init<>());
 
     class_<NodeStorageAdaptor>(m, "NodeStorage")
-        .def(init<NodeFactoryRegistryAdaptor*, KnobModelRegistry*, Logger*>())
+        .def(init<NodeFactoryRegistryAdaptor*, Logger*>())
         .def("dispatch", &NodeStorageAdaptor::dispatch)
         .def("state", &NodeStorageAdaptor::state)
         .def("subscribe", &NodeStorageAdaptor::subscribe);
@@ -252,6 +261,8 @@ PYBIND11_MODULE(_platform, m)
     bind_node_collection(m);
     bind_knob(m);
     bind_knob_collection(m);
+    bind_attribute(m);
+    bind_attr_collection(m);
     bind_metadata(m);
     bind_metadata_collection(m);
     bind_node_storage(m);

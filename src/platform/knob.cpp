@@ -91,7 +91,7 @@ bool Knob::accept(const Knob& other) const
     return true;
 }
 
-KnobPtr Knob::connect(const NodeId node_id, const std::string& knob_name) const
+KnobPtr Knob::connect(const NodeId node_id, const std::string& knob_name)
 {
     if (is_reference())
     {
@@ -101,14 +101,21 @@ KnobPtr Knob::connect(const NodeId node_id, const std::string& knob_name) const
     KnobPtr result(new Knob(
         m_model_name,
         m_owner,
-        KnobRef {node_id, knob_name}));
+        KnobRef {node_id, knob_name, shared_from_this()}));
 
     return result;
 }
 
-KnobPtr Knob::disconnect(AttrMap attr_map) const
+KnobPtr Knob::disconnect() const
 {
-    throw std::logic_error("Not implemented.");
+    try
+    {
+        return std::get<KnobRef>(m_value).disconnected;
+    }
+    catch (const std::bad_variant_access&)
+    {
+        throw std::runtime_error("Can't disconnect knob.");
+    }
 }
 
 Knob::AttrMap::Iterator Knob::begin() const

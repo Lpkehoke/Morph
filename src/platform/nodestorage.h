@@ -5,9 +5,9 @@
 
 #include <functional>
 
-namespace platform { class KnobModelRegistry; }
-namespace platform { class Logger; }
 namespace platform { class NodeFactoryRegistry; }
+namespace platform { class Logger; }
+
 
 namespace platform
 {
@@ -18,8 +18,7 @@ class NodeStorage
     using OnUpdateFn = std::function<void()>;
 
     NodeStorage(
-        NodeFactoryRegistry*    registry,
-        KnobModelRegistry*     builder,
+        NodeFactoryRegistry*    node_factory_registry,
         Logger*                 logger);
 
     ~NodeStorage();

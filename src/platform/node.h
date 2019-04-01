@@ -18,7 +18,7 @@ class Node
 
     Node();
 
-    virtual void compute() const;
+    virtual void compute() const = 0;
 
     KnobMap input_knobs() const;
     KnobMap output_knobs() const;

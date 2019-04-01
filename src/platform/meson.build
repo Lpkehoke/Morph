@@ -2,7 +2,6 @@ platform_src = [
     'attribute.cpp',
     'enabledispatch.cpp',
     'knob.cpp',
-    'knobmodelregistry.cpp',
     'logger.cpp',
     'node.cpp',
     'nodefactoryregistry.cpp',

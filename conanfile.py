@@ -9,7 +9,7 @@ class Morph(ConanFile):
     requires = (
         'TBB/2019_U4@conan/stable',
         'gtest/1.8.1@bincrafters/stable',
-        'pybind11/2.2.3@conan/stable'
+        'pybind11/2.2.4@conan/stable'
     )
 
     generators = {}

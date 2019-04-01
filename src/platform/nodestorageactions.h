@@ -12,7 +12,6 @@ namespace platform
 
 struct CreateNode
 {
-    NodeId          id;
     std::string     model;
     Metadata        metadata;
 };

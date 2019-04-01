@@ -32,11 +32,20 @@ using MetadataCollection    = immutable::Map<NodeId, Metadata>;
 
 struct NodeStorageState
 {
+    NodeStorageState()
+        : m_next_node_id(0)
+        , m_next_knob_id(0)
+        , m_next_attr_id(0)
+    {}
+    
     AttributeCollection     m_attributes;
     KnobCollection          m_knobs;
     NodeCollection          m_nodes;
     MetadataCollection      m_node_metadata;
     MetadataCollection      m_knob_metadata;
+    NodeId                  m_next_node_id;
+    KnobId                  m_next_knob_id;
+    AttrId                  m_next_attr_id;
 };
 
 } // namespace platform
