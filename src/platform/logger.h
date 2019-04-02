@@ -1,5 +1,7 @@
 #pragma once
 
+#include "base/taskqueue.h"
+
 #include <chrono>
 #include <cstddef>
 #include <string>
@@ -29,7 +31,6 @@ class Logger
         LogRecord(LogRecord&& other);
         LogRecord(const LogRecord& other);
 
-        std::size_t                                        id;
         std::string                                        info;
         Severity                                           severity;
         std::chrono::time_point<std::chrono::system_clock> time;
@@ -51,10 +52,11 @@ class Logger
     State get_state() const;
 
   private:
-    LogRecord create_log_record(const std::string& info, const Severity severity);
+    LogRecord create_log_record(const std::string& info, const Severity severity) const;
+    void      post_record_to_queue(LogRecord&& lr);
 
-    State       m_state;
-    std::size_t m_current_id;
+    State                   m_state;
+    ::base::TaskQueue       m_action_queue; // TO FIX
 };
 
 } // namespace platform
