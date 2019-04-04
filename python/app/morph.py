@@ -6,7 +6,7 @@ def start():
     logger = Logger()
 
     node_storage = NodeStorage(node_factory_registry, logger)
-    ui_manager = UiManager(node_storage)
+    ui_manager = UiManager(node_storage, logger)
     ui_manager.start()
 
 

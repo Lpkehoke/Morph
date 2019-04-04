@@ -36,9 +36,11 @@ Logger::State Logger::state() const
 }
 
 void Logger::post_record_to_queue(LogRecord&& lr) {
-    this->m_action_queue.post([=](){
-        this->m_state.emplace_back(std::move(lr));
-    });
+    this->m_action_queue.post(
+        [=]()
+        {
+            this->m_state.emplace_back(std::move(lr));
+        });
 }
 
 } // namespace platform

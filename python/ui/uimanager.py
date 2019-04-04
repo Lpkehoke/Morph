@@ -1,19 +1,21 @@
 from PySide2.QtCore import QObject, Signal, Slot, Qt
 from PySide2.QtWidgets import QApplication
 
-from python.platform import NodeStorage
+from python.platform import NodeStorage, Logger, Severity
 from .createnodedialog import CreateNodeDialog
 from .stateviewer import StateViewer
+from .outputviewer import OutputViewer
 from .window import Window
 
 
 class UiManager(QObject):
     on_state_updated = Signal()
 
-    def __init__(self, node_storage: NodeStorage):
+    def __init__(self, node_storage: NodeStorage, logger: Logger):
         super().__init__()
         self.app = QApplication([])
         self.node_storage = node_storage
+        self.logger = logger
         self.state = self.node_storage.state()
         self.widgets = []
 
@@ -30,12 +32,18 @@ class UiManager(QObject):
             'metadata': metadata
         })
 
+        self.logger.log(Severity.Info, 'Called dispatch.')
+
         self.create_node_dialog.hide()
 
     def start(self):
         state_viewer = StateViewer(self.state)
         self.window.setCentralWidget(state_viewer)
         self.widgets.append(state_viewer)
+
+        output_viewer = OutputViewer(self.logger)
+        output_viewer.show()
+        self.widgets.append(output_viewer)
 
         file_menu = self.window.menuBar().addMenu('File')
         node_menu = self.window.menuBar().addMenu('Node')
