@@ -55,8 +55,8 @@ class Logger
     LogRecord create_log_record(const std::string& info, const Severity severity) const;
     void      post_record_to_queue(LogRecord&& lr);
 
-    State                   m_state;
-    ::base::TaskQueue       m_action_queue; // TO FIX
+    State               m_state;
+    base::TaskQueue     m_action_queue;
 };
 
 } // namespace platform

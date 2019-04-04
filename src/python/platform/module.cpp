@@ -18,29 +18,30 @@
 #include <string>
 #include <utility>
 
+namespace py = pybind11;
+
 namespace platform { struct CreateNode; }
 namespace platform { struct MakeConnection; }
 namespace platform { struct RemoveNode; }
 namespace platform { struct UpdateNodeMetadata; }
 
 using namespace platform;
-using namespace pybind11;
 
 
 //
 //  Bind Node.
 //
 
-void bind_node(const handle& m)
+void bind_node(const py::handle& m)
 {
     bind_map<Node::KnobMap>(m, "KnobMap");
 
-    class_<Node, NodePtr>(m, "Node")
+    py::class_<Node, NodePtr>(m, "Node")
         .def("input_knobs", &Node::input_knobs)
         .def("output_knobs", &Node::output_knobs);
 }
 
-void bind_node_collection(const handle& m)
+void bind_node_collection(const py::handle& m)
 {
     bind_map<NodeCollection>(m, "NodeCollection");
 }
@@ -50,12 +51,12 @@ void bind_node_collection(const handle& m)
 //  Bind Knob.
 //
 
-void bind_knob(const handle& m)
+void bind_knob(const py::handle& m)
 {
-    class_<Knob, KnobPtr>(m, "Knob");
+    py::class_<Knob, KnobPtr>(m, "Knob");
 }
 
-void bind_knob_collection(const handle& m)
+void bind_knob_collection(const py::handle& m)
 {
     bind_map<KnobCollection>(m, "KnobKollection");
 }
@@ -65,12 +66,12 @@ void bind_knob_collection(const handle& m)
 //  Bind Attribute.
 //
 
-void bind_attribute(const handle& m)
+void bind_attribute(const py::handle& m)
 {
-    class_<Attribute, AttrPtr>(m, "Attribute");
+    py::class_<Attribute, AttrPtr>(m, "Attribute");
 }
 
-void bind_attr_collection(const handle& m)
+void bind_attr_collection(const py::handle& m)
 {
     bind_map<AttributeCollection>(m, "AttributeCollection");
 }
@@ -79,12 +80,12 @@ void bind_attr_collection(const handle& m)
 //  Bind Metadata.
 //
 
-void bind_metadata(const handle& m)
+void bind_metadata(const py::handle& m)
 {
     bind_map<Metadata>(m, "Metadata");
 }
 
-void bind_metadata_collection(const handle& m)
+void bind_metadata_collection(const py::handle& m)
 {
     bind_map<MetadataCollection>(m, "MetadataCollection");
 }
@@ -148,8 +149,8 @@ class NodeStorageAdaptor : public NodeStorage
         NodeFactoryRegistryAdaptor* node_factory_registry,
         Logger*                     logger);
 
-    void dispatch(const dict& action);
-    void subscribe(const object& on_update);
+    void dispatch(const py::dict& action);
+    void subscribe(const py::object& on_update);
 };
 
 
@@ -163,9 +164,9 @@ NodeStorageAdaptor::NodeStorageAdaptor(
     : NodeStorage(node_factory_registry, logger)
 {}
 
-void NodeStorageAdaptor::dispatch(const dict& action)
+void NodeStorageAdaptor::dispatch(const py::dict& action)
 {
-    std::string action_type = str(action["type"]);
+    std::string action_type = py::str(action["type"]);
 
     if (action_type == "CreateNode")
     {
@@ -193,18 +194,18 @@ void NodeStorageAdaptor::dispatch(const dict& action)
     }
 }
 
-void NodeStorageAdaptor::subscribe(const object& on_update)
+void NodeStorageAdaptor::subscribe(const py::object& on_update)
 {
     NodeStorage::subscribe(
         [on_update]()
         {
-            gil_scoped_acquire gil;
+            py::gil_scoped_acquire gil;
 
             try
             {
                 on_update();
             }
-            catch(const error_already_set&)
+            catch(const py::error_already_set&)
             {
                 // TODO: supply exception info here.
                 throw std::runtime_error("Python exception occured during callback evaluation.");
@@ -214,9 +215,9 @@ void NodeStorageAdaptor::subscribe(const object& on_update)
 
 } // namespace
 
-void bind_node_storage(const handle& m)
+void bind_node_storage(const py::handle& m)
 {
-    class_<NodeStorageState>(m, "NodeStorageState")
+    py::class_<NodeStorageState>(m, "NodeStorageState")
         .def_property_readonly(
             "nodes",
             [](const NodeStorageState& state)
@@ -242,13 +243,13 @@ void bind_node_storage(const handle& m)
                 return state.m_node_metadata;
             });
 
-    class_<NodeFactoryRegistryAdaptor>(m, "NodeFactoryRegistry")
-        .def(init<>());
-    class_<Logger>(m, "Logger")
-        .def(init<>());
+    py::class_<NodeFactoryRegistryAdaptor>(m, "NodeFactoryRegistry")
+        .def(py::init<>());
+    py::class_<Logger>(m, "Logger")
+        .def(py::init<>());
 
-    class_<NodeStorageAdaptor>(m, "NodeStorage")
-        .def(init<NodeFactoryRegistryAdaptor*, Logger*>())
+    py::class_<NodeStorageAdaptor>(m, "NodeStorage")
+        .def(py::init<NodeFactoryRegistryAdaptor*, Logger*>())
         .def("dispatch", &NodeStorageAdaptor::dispatch)
         .def("state", &NodeStorageAdaptor::state)
         .def("subscribe", &NodeStorageAdaptor::subscribe);

@@ -4,13 +4,14 @@
 
 #include <utility>
 
-using namespace pybind11;
+namespace py = pybind11;
+
 using namespace computeengine;
 
 PYBIND11_MODULE(_computeengine, m)
 {
 
-class_<ComputeEngine>(m, "ComputeEngine");
+py::class_<ComputeEngine>(m, "ComputeEngine");
 
 }
 

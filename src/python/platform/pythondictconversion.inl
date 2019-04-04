@@ -7,11 +7,12 @@
 
 #include <exception>
 
+namespace py = pybind11;
+
 using namespace platform;
-using namespace pybind11;
 
 template <typename T>
-T from_dict(const dict& input);
+T from_dict(const py::dict& input);
 
 
 //
@@ -19,14 +20,14 @@ T from_dict(const dict& input);
 //
 
 template <>
-Metadata from_dict(const dict& input)
+Metadata from_dict(const py::dict& input)
 {
     Metadata metadata;
 
     for (const auto& pair : input)
     {
         std::string key_str = pair.first.cast<std::string>();
-        handle val = pair.second;
+        py::handle val = pair.second;
         
         if (PyFloat_Check(val.ptr()))
         {
@@ -58,12 +59,12 @@ Metadata from_dict(const dict& input)
 //
 
 template <>
-CreateNode from_dict(const dict& input)
+CreateNode from_dict(const py::dict& input)
 {
     CreateNode create_node;
     create_node.model = input["model"].cast<std::string>();
 
-    dict metadata_dict = input["metadata"].cast<dict>();
+    py::dict metadata_dict = input["metadata"].cast<py::dict>();
     create_node.metadata = from_dict<Metadata>(metadata_dict);
 
     return create_node;
@@ -75,7 +76,7 @@ CreateNode from_dict(const dict& input)
 //
 
 template <>
-RemoveNode from_dict(const dict& input)
+RemoveNode from_dict(const py::dict& input)
 {
     RemoveNode remove_node;
 
@@ -90,12 +91,12 @@ RemoveNode from_dict(const dict& input)
 //
 
 template <>
-UpdateNodeMetadata from_dict(const dict& input)
+UpdateNodeMetadata from_dict(const py::dict& input)
 {
     UpdateNodeMetadata update_node_metadata;
     update_node_metadata.id = input["id"].cast<NodeId>();
     
-    dict metadata_dict = input["metadata"].cast<dict>();
+    py::dict metadata_dict = input["metadata"].cast<py::dict>();
     update_node_metadata.metadata = from_dict<Metadata>(metadata_dict);
 
     return update_node_metadata;
@@ -107,7 +108,7 @@ UpdateNodeMetadata from_dict(const dict& input)
 //
 
 template <>
-MakeConnection from_dict(const dict& input)
+MakeConnection from_dict(const py::dict& input)
 {
     MakeConnection make_connection;
 
