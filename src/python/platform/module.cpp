@@ -12,8 +12,10 @@
 #include "platform/nodestoragetypes.h"
 
 #include <pybind11/pybind11.h>
+#include <pybind11/chrono.h>
 #include <pybind11/stl.h>
 
+#include <chrono>
 #include <exception>
 #include <string>
 #include <utility>
@@ -245,8 +247,39 @@ void bind_node_storage(const py::handle& m)
 
     py::class_<NodeFactoryRegistryAdaptor>(m, "NodeFactoryRegistry")
         .def(py::init<>());
+    
+    py::enum_<Logger::Severity>(m, "Severity", py::arithmetic())
+        .value("Debug", Logger::Severity::Debug)
+        .value("Trace", Logger::Severity::Trace)
+        .value("Info", Logger::Severity::Info)
+        .value("Warning", Logger::Severity::Warning)
+        .value("Error", Logger::Severity::Error)
+        .value("Fatal", Logger::Severity::Fatal);
+
+    py::class_<Logger::LogRecord>(m, "LogRecord")
+        .def_property_readonly(
+            "timestamp",
+            [](const Logger::LogRecord& lr)
+            {
+                return lr.timestamp;
+            })
+        .def_property_readonly(
+            "severity",
+            [](const Logger::LogRecord& lr)
+            {
+                return lr.severity;
+            })
+        .def_property_readonly(
+            "message",
+            [](const Logger::LogRecord& lr)
+            {
+                return lr.message;
+            });
+
     py::class_<Logger>(m, "Logger")
-        .def(py::init<>());
+        .def(py::init<>())
+        .def("log", &Logger::log)
+        .def("state", &Logger::state);
 
     py::class_<NodeStorageAdaptor>(m, "NodeStorage")
         .def(py::init<NodeFactoryRegistryAdaptor*, Logger*>())

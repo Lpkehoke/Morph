@@ -15,12 +15,12 @@ class Logger
   public:
     enum class Severity
     {
-        trace,
-        debug,
-        info,
-        warning,
-        error,
-        fatal
+        Trace,
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Fatal
     };
 
     struct LogRecord
@@ -28,13 +28,12 @@ class Logger
         LogRecord() = default;
         ~LogRecord() = default;
 
-        LogRecord(LogRecord&& other);
         LogRecord(const LogRecord& other);
+        LogRecord(LogRecord&& other);
 
-        std::string                                        info;
-        Severity                                           severity;
-        std::chrono::time_point<std::chrono::system_clock> time;
-
+        std::string                             message;
+        Severity                                severity;
+        std::chrono::system_clock::time_point   timestamp;
     };
 
     using State = std::vector<LogRecord>;
@@ -42,18 +41,12 @@ class Logger
     Logger()  = default;
     ~Logger() = default;
 
-    void log_trace(const std::string& info);
-    void log_debug(const std::string& info);
-    void log_info(const std::string& info);
-    void log_warning(const std::string& info);
-    void log_error(const std::string& info);
-    void log_fatal(const std::string& info);
+    void log(Severity severity, const std::string& message);
 
-    State get_state() const;
+    State state() const;
 
   private:
-    LogRecord create_log_record(const std::string& info, const Severity severity) const;
-    void      post_record_to_queue(LogRecord&& lr);
+    void post_record_to_queue(LogRecord&& lr);
 
     State               m_state;
     base::TaskQueue     m_action_queue;

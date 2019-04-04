@@ -179,7 +179,7 @@ void NodeStorage::dispatch(NodeStorageAction action)
         }
         catch (const std::exception& ex)
         {
-            impl->m_logger->log_error(ex.what());
+            impl->m_logger->log(Logger::Severity::Error, ex.what());
         }
     });
 }
