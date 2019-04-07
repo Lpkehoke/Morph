@@ -1,7 +1,7 @@
 #include "node.h"
 #include "knob.h"
 
-#include <exception>
+#include <stdexcept>
 
 namespace platform { class Attribute; }
 

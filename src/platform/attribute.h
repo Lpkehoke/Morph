@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include <variant>
-#include <utility>
+#include "platform/value.h"
 
 namespace platform
 {
@@ -10,18 +8,23 @@ namespace platform
 class Attribute
 {
   public:
-    Attribute();
-    Attribute(const Attribute& other);
+    static constexpr float default_time = 0.0f;
+
+    Attribute() = default;
 
     template <typename T>
-    T& cast();
+    const T& get(float time = default_time) const
+    {
+        // Placeholder until good implementation is provided.
+        return m_value.get<T>();
+    }
 
-    template <typename T>
-    const T& cast() const;
+    const Value& get(float time = default_time) const
+    {
+        return m_value;
+    }
 
   private:
-    using Value = std::variant<std::int64_t, std::uint64_t, double>;
-
     Value m_value;
 };
 

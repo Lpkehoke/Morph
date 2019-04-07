@@ -1,5 +1,5 @@
 platform_src = [
-    'attribute.cpp',
+    'value.cpp',
     'enabledispatch.cpp',
     'knob.cpp',
     'logger.cpp',

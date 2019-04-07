@@ -2,7 +2,7 @@
 
 #include "nodefactory.h"
 
-#include <exception>
+#include <stdexcept>
 #include <utility>
 
 namespace platform

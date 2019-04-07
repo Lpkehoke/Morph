@@ -6,7 +6,7 @@
 
 #include <tbb/task.h>
 
-#include <exception>
+#include <stdexcept>
 #include <utility>
 
 using namespace platform;

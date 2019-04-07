@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <stdexcept>
 #include <utility>
 
 using namespace immutable;

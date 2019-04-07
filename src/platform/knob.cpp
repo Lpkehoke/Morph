@@ -1,6 +1,6 @@
 #include "knob.h"
 
-#include <exception>
+#include <stdexcept>
 #include <utility>
 #include <variant>
 
