@@ -1,8 +1,9 @@
 #pragma once
 
+#include "platform/valuetype.h"
+
 #include <cstddef>
 #include <stdexcept>
-#include <typeinfo>
 #include <utility>
 
 namespace platform
@@ -16,14 +17,28 @@ class Value
     Value(Value&& other);
 
     template <typename T>
-    Value(const T& value)
-      : m_held(new ValueHolder<T>(value))
-    {}
+    Value(const T& value, ValueType val_type)
+    {
+        if (!val_type.is<T>())
+        {
+            throw std::runtime_error("Type mismatch.");
+        }
+
+        m_held = new ValueHolder<T>(value, std::move(val_type));
+    }
 
     template <typename T>
-    Value(T&& value)
-      : m_held(new ValueHolder<T>(std::move(value)))
-    {}
+    Value(T&& value, ValueType val_type)
+    {
+        if (!val_type.is<T>())
+        {
+            throw std::runtime_error("Type mismatch.");
+        }
+
+        m_held = new ValueHolder<T>(
+            std::move(value),
+            std::move(val_type));
+    }
 
     ~Value();
 
@@ -42,7 +57,7 @@ class Value
   private:
     struct ValueHolderBase
     {
-        virtual std::size_t type_hash_code() const = 0;
+        virtual const ValueType& value_type() const = 0;
         virtual ValueHolderBase* clone() const = 0;
 
         virtual ~ValueHolderBase() = default;
@@ -50,31 +65,31 @@ class Value
         template <typename T>
         bool is() const
         {
-            return typeid(T).hash_code() == type_hash_code();
+            return value_type().is<T>();
         }
     };
 
     template <typename T>
     struct ValueHolder : public ValueHolderBase
     {
-        ValueHolder(const T& value)
+        ValueHolder(const T& value, ValueType&& val_type)
           : m_value(value)
-          , m_hash_code(typeid(T).hash_code())
+          , m_value_type(std::move(val_type))
         {}
 
-        ValueHolder(T&& value)
+        ValueHolder(T&& value, ValueType&& val_type)
           : m_value(std::move(value))
-          , m_hash_code(typeid(T).hash_code())
+          , m_value_type(std::move(val_type))
         {}
 
         ValueHolder(const ValueHolder& other)
           : m_value(other.m_value)
-          , m_hash_code(other.m_hash_code)
+          , m_value_type(other.m_value_type)
         {}
 
-        virtual std::size_t type_hash_code() const override
+        virtual const ValueType& value_type() const override
         {
-            return m_hash_code;
+            return m_value_type;
         }
 
         virtual ValueHolderBase* clone() const override
@@ -82,8 +97,8 @@ class Value
             return new ValueHolder(*this);
         }
 
-        T                 m_value;
-        const std::size_t m_hash_code;
+        T           m_value;
+        ValueType   m_value_type;
     };
 
     template <typename T>
@@ -102,7 +117,7 @@ class Value
         ValueHolder<T>* held = static_cast<ValueHolder<T>*>(m_held);
         return held->m_value;
     }
-
+    
     ValueHolderBase* m_held;
 };
 
