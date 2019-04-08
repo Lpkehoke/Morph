@@ -7,7 +7,7 @@
 
 #include <functional>
 
-namespace platform { class NodeFactoryRegistry; }
+namespace platform { class PluginManager; }
 namespace platform { class Logger; }
 
 
@@ -20,8 +20,8 @@ class NodeStorage : public base::Observable
     using OnUpdateFn = std::function<void()>;
 
     NodeStorage(
-        NodeFactoryRegistry*    node_factory_registry,
-        Logger*                 logger);
+        PluginManager*  plugin_manager,
+        Logger*         logger);
 
     ~NodeStorage() override;
 

@@ -5,9 +5,9 @@ platform_src = [
     'knobschema.cpp',
     'logger.cpp',
     'node.cpp',
-    'nodefactoryregistry.cpp',
     'nodestorage.cpp',
     'operations.cpp',
+    'pluginmanager.cpp',
     'value.cpp',
     'valuetype.cpp'
 ]

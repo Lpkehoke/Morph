@@ -4,7 +4,7 @@
 #include "platform/logger.h"
 #include "platform/node.h"
 #include "platform/nodefactory.h"
-#include "platform/nodefactoryregistry.h"
+#include "platform/pluginmanager.h"
 #include "platform/nodestorageactions.h"
 #include "platform/nodestoragetypes.h"
 #include "platform/operations.h"
@@ -32,9 +32,9 @@ class Reducer
 {
   public:
     Reducer(
-        NodeFactoryRegistry*    node_factoryregistry,
-        Logger*                 logger)
-        : m_node_factory_registry(node_factoryregistry)
+        PluginManager*  plugin_manager,
+        Logger*         logger)
+        : m_plugin_manager(plugin_manager)
         , m_logger(logger)
     {}
 
@@ -50,7 +50,7 @@ class Reducer
 
     NodeStorageState reduce(NodeStorageState&& state, CreateNode&& action)
     {
-        auto factory = m_node_factory_registry->get_node_factory(action.model);
+        auto factory = m_plugin_manager->get_node_factory(action.model);
         
         auto node_id = state.m_next_node_id;
         auto next_state = make_node(std::move(state), *factory);
@@ -123,8 +123,8 @@ class Reducer
     }
 
   private:
-    NodeFactoryRegistry*    m_node_factory_registry;
-    Logger*                 m_logger;
+    PluginManager*  m_plugin_manager;
+    Logger*         m_logger;
 };
 
 } // namespace
@@ -135,9 +135,9 @@ namespace platform
 struct NodeStorage::Impl
 {
     Impl(
-        NodeFactoryRegistry*    node_factory_registry,
-        Logger*                 logger)
-        : m_reducer(node_factory_registry, logger)
+        PluginManager*      plugin_manager,
+        Logger*             logger)
+        : m_reducer(plugin_manager, logger)
         , m_logger(logger)
     {}
 
@@ -149,9 +149,9 @@ struct NodeStorage::Impl
 };
 
 NodeStorage::NodeStorage(
-    NodeFactoryRegistry*    node_factory_registry,
+    PluginManager*          plugin_manager,
     Logger*                 logger)
-    : impl(new Impl(node_factory_registry, logger))
+    : impl(new Impl(plugin_manager, logger))
 {}
 
 NodeStorage::~NodeStorage()

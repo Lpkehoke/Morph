@@ -7,7 +7,7 @@
 #include "platform/logger.h"
 #include "platform/node.h"
 #include "platform/nodefactory.h"
-#include "platform/nodefactoryregistry.h"
+#include "platform/pluginmanager.h"
 #include "platform/nodestorage.h"
 #include "platform/nodestoragetypes.h"
 
@@ -104,8 +104,8 @@ class NodeStorageAdaptor : public NodeStorage
 {
   public:
     NodeStorageAdaptor(
-        NodeFactoryRegistry*    node_factory_registry,
-        Logger*                 logger);
+        PluginManager*  plugin_manager,
+        Logger*         logger);
 
     void dispatch(const py::dict& action);
     void subscribe(const py::object& on_update);
@@ -117,9 +117,9 @@ class NodeStorageAdaptor : public NodeStorage
 //
 
 NodeStorageAdaptor::NodeStorageAdaptor(
-    NodeFactoryRegistry*    node_factory_registry,
-    Logger*                 logger)
-    : NodeStorage(node_factory_registry, logger)
+    PluginManager*  plugin_manager,
+    Logger*         logger)
+    : NodeStorage(plugin_manager, logger)
 {}
 
 void NodeStorageAdaptor::dispatch(const py::dict& action)
@@ -201,7 +201,7 @@ void bind_node_storage(const py::handle& m)
                 return state.m_node_metadata;
             });
 
-    py::class_<NodeFactoryRegistry>(m, "NodeFactoryRegistry")
+    py::class_<PluginManager>(m, "PluginManager")
         .def(py::init<>());
     
     py::enum_<Logger::Severity>(m, "Severity", py::arithmetic())
@@ -238,7 +238,7 @@ void bind_node_storage(const py::handle& m)
         .def("state", &Logger::state);
 
     py::class_<NodeStorageAdaptor>(m, "NodeStorage")
-        .def(py::init<NodeFactoryRegistry*, Logger*>())
+        .def(py::init<PluginManager*, Logger*>())
         .def("dispatch", &NodeStorageAdaptor::dispatch)
         .def("state", &NodeStorageAdaptor::state)
         .def("subscribe", &NodeStorageAdaptor::subscribe);
