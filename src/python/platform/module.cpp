@@ -100,56 +100,12 @@ void bind_metadata_collection(const py::handle& m)
 namespace
 {
 
-// Dummy node is used for testing until NodeStorageRegistry is
-// populated with nodes from plugins.
-class DummyNode : public Node
-{
-  public:
-    DummyNode() = default;
-
-    virtual void compute() const override
-    {
-        return;
-    }
-};
-
-// Dummy node factory is used for testing until NodeStorageRegistry is
-// populated with nodes from plugins.
-class DummyNodeFactory : public NodeFactory
-{
-  public:
-    virtual NodeStorageState create(NodeStorageState state) const override
-    {
-        auto node = std::make_shared<DummyNode>();
-        auto next_state = std::move(state);
-        next_state.m_nodes.mutable_set(next_state.m_next_node_id++, std::move(node));
-
-        return next_state;
-    }
-
-    virtual std::string model() const override
-    {
-        return "Dummy";
-    }
-};
-
-class NodeFactoryRegistryAdaptor : public NodeFactoryRegistry
-{
-  public:
-    NodeFactoryRegistryAdaptor()
-    {
-        auto node_factory = new DummyNodeFactory();
-
-        register_node_factory(node_factory);
-    }
-};
-
 class NodeStorageAdaptor : public NodeStorage
 {
   public:
     NodeStorageAdaptor(
-        NodeFactoryRegistryAdaptor* node_factory_registry,
-        Logger*                     logger);
+        NodeFactoryRegistry*    node_factory_registry,
+        Logger*                 logger);
 
     void dispatch(const py::dict& action);
     void subscribe(const py::object& on_update);
@@ -161,8 +117,8 @@ class NodeStorageAdaptor : public NodeStorage
 //
 
 NodeStorageAdaptor::NodeStorageAdaptor(
-    NodeFactoryRegistryAdaptor* node_factory_registry,
-    Logger*                     logger)
+    NodeFactoryRegistry*    node_factory_registry,
+    Logger*                 logger)
     : NodeStorage(node_factory_registry, logger)
 {}
 
@@ -245,7 +201,7 @@ void bind_node_storage(const py::handle& m)
                 return state.m_node_metadata;
             });
 
-    py::class_<NodeFactoryRegistryAdaptor>(m, "NodeFactoryRegistry")
+    py::class_<NodeFactoryRegistry>(m, "NodeFactoryRegistry")
         .def(py::init<>());
     
     py::enum_<Logger::Severity>(m, "Severity", py::arithmetic())
@@ -282,7 +238,7 @@ void bind_node_storage(const py::handle& m)
         .def("state", &Logger::state);
 
     py::class_<NodeStorageAdaptor>(m, "NodeStorage")
-        .def(py::init<NodeFactoryRegistryAdaptor*, Logger*>())
+        .def(py::init<NodeFactoryRegistry*, Logger*>())
         .def("dispatch", &NodeStorageAdaptor::dispatch)
         .def("state", &NodeStorageAdaptor::state)
         .def("subscribe", &NodeStorageAdaptor::subscribe);

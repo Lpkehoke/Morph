@@ -1,10 +1,13 @@
 platform_src = [
+    'attribute.cpp',
     'enabledispatch.cpp',
     'knob.cpp',
+    'knobschema.cpp',
     'logger.cpp',
     'node.cpp',
     'nodefactoryregistry.cpp',
     'nodestorage.cpp',
+    'operations.cpp',
     'value.cpp',
     'valuetype.cpp'
 ]

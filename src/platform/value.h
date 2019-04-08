@@ -54,6 +54,8 @@ class Value
         return get_impl<T>();
     }
 
+    const ValueType& value_type() const;
+
   private:
     struct ValueHolderBase
     {

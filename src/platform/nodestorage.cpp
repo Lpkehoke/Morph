@@ -1,13 +1,14 @@
-#include "nodestorage.h"
+#include "platform/nodestorage.h"
 
-#include "knob.h"
-#include "logger.h"
-#include "node.h"
-#include "nodefactory.h"
-#include "nodefactoryregistry.h"
-#include "nodestorageactions.h"
-#include "nodestoragetypes.h"
-#include "value.h"
+#include "platform/knob.h"
+#include "platform/logger.h"
+#include "platform/node.h"
+#include "platform/nodefactory.h"
+#include "platform/nodefactoryregistry.h"
+#include "platform/nodestorageactions.h"
+#include "platform/nodestoragetypes.h"
+#include "platform/operations.h"
+#include "platform/value.h"
 
 #include "base/immutable/map.h"
 #include "base/taskqueue.h"
@@ -50,9 +51,9 @@ class Reducer
     NodeStorageState reduce(NodeStorageState&& state, CreateNode&& action)
     {
         auto factory = m_node_factory_registry->get_node_factory(action.model);
-
+        
         auto node_id = state.m_next_node_id;
-        auto next_state = factory->create(std::move(state));
+        auto next_state = make_node(std::move(state), *factory);
 
         next_state.m_node_metadata.mutable_set(node_id, std::move(action.metadata));
 

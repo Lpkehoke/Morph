@@ -29,4 +29,14 @@ Value::~Value()
     delete m_held;
 }
 
+const ValueType& Value::value_type() const
+{
+    if (!m_held)
+    {
+        throw std::runtime_error("Empty value has no type.");
+    }
+
+    return m_held->value_type();
+}
+
 } // namespace platform

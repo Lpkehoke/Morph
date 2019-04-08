@@ -8,18 +8,18 @@
 namespace platform
 {
 
-Knob::Knob(KnobId owner, std::string model_name, AttrMap attr_map)
+Knob::Knob(KnobId owner, std::string schema_name, AttrMap attr_map)
     : m_owner(owner)
-    , m_model_name(std::move(model_name))
+    , m_schema_name(std::move(schema_name))
     , m_value(std::move(attr_map))
 {}
 
 Knob::Knob(
-    std::string model_name,
+    std::string schema_name,
     NodeId      owner,
     KnobRef&&   knob_ref)
     : m_owner(owner)
-    , m_model_name(std::move(model_name))
+    , m_schema_name(std::move(schema_name))
     , m_value(std::move(knob_ref))
 {}
 
@@ -42,7 +42,7 @@ NodeId Knob::owner() const
 
 const std::string& Knob::model() const
 {
-    return m_model_name;
+    return m_schema_name;
 }
 
 bool Knob::is_reference() const
@@ -64,7 +64,7 @@ NodeId Knob::referenced_node() const
 
 bool Knob::accept(const Knob& other) const
 {
-    if (m_model_name != other.m_model_name)
+    if (m_schema_name != other.m_schema_name)
     {
         return false;
     }
@@ -99,7 +99,7 @@ KnobPtr Knob::connect(const NodeId node_id, const std::string& knob_name)
     }
 
     KnobPtr result(new Knob(
-        m_model_name,
+        m_schema_name,
         m_owner,
         KnobRef {node_id, knob_name, shared_from_this()}));
 

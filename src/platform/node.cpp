@@ -8,8 +8,10 @@ namespace platform { class Attribute; }
 namespace platform
 {
 
-Node::Node()
+Node::Node(KnobMap input_knobs, KnobMap output_knobs)
     : m_state(nullptr)
+    , m_input_knobs(std::move(input_knobs))
+    , m_output_knobs(std::move(output_knobs))
 {}
 
 void Node::compute() const

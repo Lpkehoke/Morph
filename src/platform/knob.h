@@ -17,7 +17,7 @@ class Knob : public std::enable_shared_from_this<Knob>
   public:
     using AttrMap = immutable::Map<std::string, AttrId>;
 
-    Knob(NodeId owner, std::string model_name, AttrMap attr_map);
+    Knob(NodeId owner, std::string schema_name, AttrMap attr_map);
 
     AttrId attribute(const std::string& attr_name) const;
     
@@ -44,12 +44,12 @@ class Knob : public std::enable_shared_from_this<Knob>
     using Value = std::variant<std::monostate, AttrMap, KnobRef>;
 
     Knob(
-        std::string model_name,
+        std::string schema_name,
         NodeId      owner,
         KnobRef&&   knob_ref);
 
     NodeId          m_owner;
-    std::string     m_model_name;
+    std::string     m_schema_name;
     Value           m_value;
 };
 

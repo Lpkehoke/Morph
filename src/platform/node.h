@@ -16,7 +16,7 @@ class Node
   public:
     using KnobMap = immutable::Map<std::string, KnobId>;
 
-    Node();
+    Node(KnobMap input_knos, KnobMap output_knobs);
 
     virtual void compute() const = 0;
 
