@@ -2,6 +2,9 @@
 
 #include <utility>
 
+namespace platform { class ValueType; }
+
+
 namespace platform
 {
 

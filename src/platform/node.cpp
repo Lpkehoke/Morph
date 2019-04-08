@@ -2,6 +2,7 @@
 #include "knob.h"
 
 #include <stdexcept>
+#include <utility>
 
 namespace platform { class Attribute; }
 

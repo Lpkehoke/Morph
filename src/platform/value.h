@@ -2,7 +2,6 @@
 
 #include "platform/valuetype.h"
 
-#include <cstddef>
 #include <stdexcept>
 #include <utility>
 

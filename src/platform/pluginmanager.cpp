@@ -6,6 +6,7 @@
 #include "base/registry.h"
 
 #include <functional>
+#include <utility>
 
 
 namespace platform

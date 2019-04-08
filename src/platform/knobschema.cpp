@@ -1,4 +1,5 @@
 #include "platform/knobschema.h"
+#include "platform/value.h"
 
 #include <algorithm>
 #include <stdexcept>

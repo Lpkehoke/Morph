@@ -3,12 +3,10 @@
 #include "platform/knob.h"
 #include "platform/logger.h"
 #include "platform/node.h"
-#include "platform/nodefactory.h"
 #include "platform/pluginmanager.h"
 #include "platform/nodestorageactions.h"
 #include "platform/nodestoragetypes.h"
 #include "platform/operations.h"
-#include "platform/value.h"
 
 #include "base/immutable/map.h"
 #include "base/taskqueue.h"
@@ -16,9 +14,9 @@
 
 #include <tbb/spin_mutex.h>
 
+#include <exception>
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <utility>
 #include <variant>
 #include <vector>

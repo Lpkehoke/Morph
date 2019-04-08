@@ -3,9 +3,8 @@
 #include "base/observable.h"
 
 #include <chrono>
-#include <cstddef>
-#include <vector>
 #include <string>
+#include <vector>
 
 
 namespace platform
