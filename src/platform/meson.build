@@ -7,6 +7,7 @@ platform_src = [
     'node.cpp',
     'nodestorage.cpp',
     'operations.cpp',
+    'platformcore.cpp',
     'pluginmanager.cpp',
     'value.cpp',
     'valuetype.cpp'

@@ -30,10 +30,10 @@ class Reducer
 {
   public:
     Reducer(
-        PluginManager*  plugin_manager,
-        Logger*         logger)
-        : m_plugin_manager(plugin_manager)
-        , m_logger(logger)
+        PluginManagerPtr   plugin_manager,
+        LoggerPtr          logger)
+        : m_plugin_manager(std::move(plugin_manager))
+        , m_logger(std::move(logger))
     {}
 
     NodeStorageState reduce(NodeStorageState state, NodeStorageAction&& action)
@@ -119,8 +119,8 @@ class Reducer
     }
 
   private:
-    PluginManager*  m_plugin_manager;
-    Logger*         m_logger;
+    PluginManagerPtr   m_plugin_manager;
+    LoggerPtr          m_logger;
 };
 
 } // namespace
@@ -131,23 +131,25 @@ namespace platform
 struct NodeStorage::Impl
 {
     Impl(
-        PluginManager*      plugin_manager,
-        Logger*             logger)
-        : m_reducer(plugin_manager, logger)
-        , m_logger(logger)
+        PluginManagerPtr    plugin_manager,
+        LoggerPtr           logger)
+        : m_reducer(std::move(plugin_manager), logger)
+        , m_logger(std::move(logger))
     {}
 
     NodeStorageState        m_state;
     Reducer                 m_reducer;
-    Logger*                 m_logger;
+    LoggerPtr               m_logger;
     base::TaskQueue         m_action_queue;
     tbb::spin_mutex         m_mutex_dispatch;
 };
 
 NodeStorage::NodeStorage(
-    PluginManager*          plugin_manager,
-    Logger*                 logger)
-    : impl(new Impl(plugin_manager, logger))
+    PluginManagerPtr        plugin_manager,
+    LoggerPtr               logger)
+    : impl(new Impl(
+        std::move(plugin_manager),
+        std::move(logger)))
 {}
 
 NodeStorage::~NodeStorage()
@@ -172,9 +174,7 @@ void NodeStorage::dispatch(NodeStorageAction action)
             impl->m_logger->log(Logger::Severity::Error, ex.what());
         }
 
-        impl->m_action_queue.post([=](){
-            notify();
-        });
+        notify();
     });
 
 }

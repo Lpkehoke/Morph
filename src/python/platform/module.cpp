@@ -7,9 +7,10 @@
 #include "platform/logger.h"
 #include "platform/node.h"
 #include "platform/nodefactory.h"
-#include "platform/pluginmanager.h"
 #include "platform/nodestorage.h"
 #include "platform/nodestoragetypes.h"
+#include "platform/platformcoretypes.h"
+#include "platform/pluginmanager.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/chrono.h>
@@ -94,6 +95,17 @@ void bind_metadata_collection(const py::handle& m)
 
 
 //
+//  Bind PluginManager.
+//
+
+void bind_plugin_manager(const py::handle& m)
+{
+    py::class_<PluginManager, PluginManagerPtr>(m, "PluginManager")
+        .def(py::init<>());
+}
+
+
+//
 //  Bind NodeStorage.
 //
 
@@ -104,8 +116,8 @@ class NodeStorageAdaptor : public NodeStorage
 {
   public:
     NodeStorageAdaptor(
-        PluginManager*  plugin_manager,
-        Logger*         logger);
+        PluginManagerPtr   plugin_manager,
+        LoggerPtr          logger);
 
     void dispatch(const py::dict& action);
     void subscribe(const py::object& on_update);
@@ -117,9 +129,9 @@ class NodeStorageAdaptor : public NodeStorage
 //
 
 NodeStorageAdaptor::NodeStorageAdaptor(
-    PluginManager*  plugin_manager,
-    Logger*         logger)
-    : NodeStorage(plugin_manager, logger)
+    PluginManagerPtr   plugin_manager,
+    LoggerPtr          logger)
+    : NodeStorage(std::move(plugin_manager), std::move(logger))
 {}
 
 void NodeStorageAdaptor::dispatch(const py::dict& action)
@@ -200,9 +212,6 @@ void bind_node_storage(const py::handle& m)
             {
                 return state.m_node_metadata;
             });
-
-    py::class_<PluginManager>(m, "PluginManager")
-        .def(py::init<>());
     
     py::enum_<Logger::Severity>(m, "Severity", py::arithmetic())
         .value("Debug", Logger::Severity::Debug)
@@ -232,13 +241,13 @@ void bind_node_storage(const py::handle& m)
                 return lr.message;
             });
 
-    py::class_<Logger>(m, "Logger")
+    py::class_<Logger, LoggerPtr>(m, "Logger")
         .def(py::init<>())
         .def("log", &Logger::log)
         .def("state", &Logger::state);
 
     py::class_<NodeStorageAdaptor>(m, "NodeStorage")
-        .def(py::init<PluginManager*, Logger*>())
+        .def(py::init<PluginManagerPtr, LoggerPtr>())
         .def("dispatch", &NodeStorageAdaptor::dispatch)
         .def("state", &NodeStorageAdaptor::state)
         .def("subscribe", &NodeStorageAdaptor::subscribe);
@@ -255,5 +264,6 @@ PYBIND11_MODULE(_platform, m)
     bind_attr_collection(m);
     bind_metadata(m);
     bind_metadata_collection(m);
+    bind_plugin_manager(m);
     bind_node_storage(m);
 }

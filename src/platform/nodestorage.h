@@ -1,14 +1,12 @@
 #pragma once
 
-#include "base/observable.h"
-
 #include "nodestorageactions.h"
 #include "nodestoragetypes.h"
+#include "platform/platformcoretypes.h"
+
+#include "base/observable.h"
 
 #include <functional>
-
-namespace platform { class PluginManager; }
-namespace platform { class Logger; }
 
 
 namespace platform
@@ -20,8 +18,8 @@ class NodeStorage : public base::Observable
     using OnUpdateFn = std::function<void()>;
 
     NodeStorage(
-        PluginManager*  plugin_manager,
-        Logger*         logger);
+        PluginManagerPtr   plugin_manager,
+        LoggerPtr          logger);
 
     ~NodeStorage() override;
 
