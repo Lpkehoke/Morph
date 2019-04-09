@@ -11,7 +11,10 @@ class ValueType
 {
   public:
     template <typename T>
-    ValueType(const std::string& name);
+    struct TypeTag {};
+
+    template <typename T>
+    ValueType(const std::string& name, TypeTag<T>);
 
     ValueType(const ValueType& other);
 
@@ -33,7 +36,7 @@ class ValueType
 //
 
 template <typename T>
-ValueType::ValueType(const std::string& name)
+ValueType::ValueType(const std::string& name, TypeTag<T>)
   : m_name(name)
   , m_type_hash_code(typeid(T).hash_code())
 {}
