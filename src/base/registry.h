@@ -54,7 +54,7 @@ template <typename Entity>
 const Entity& Registry<Entity>::get(const std::string& name) const
 {
     auto itr = m_entity_map.find(name);
-    if (itr != m_entity_map.end())
+    if (itr == m_entity_map.end())
     {
         throw std::runtime_error(format("Entity with name \'%s\' does not exists.", name.c_str()));
     }

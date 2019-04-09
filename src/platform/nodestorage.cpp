@@ -164,7 +164,7 @@ void NodeStorage::dispatch(NodeStorageAction action)
         try
         {
             impl->m_state = impl->m_reducer.reduce(
-                std::move(impl->m_state),
+                impl->m_state,
                 std::move(action));
         }
         catch (const std::exception& ex)
