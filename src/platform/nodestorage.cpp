@@ -47,11 +47,9 @@ class Reducer
     }
 
     NodeStorageState reduce(NodeStorageState&& state, CreateNode&& action)
-    {
-        auto factory = m_plugin_manager->get_node_factory(action.model);
-        
+    {      
         auto node_id = state.m_next_node_id;
-        auto next_state = make_node(std::move(state), *factory);
+        auto next_state = make_node(std::move(state), *m_plugin_manager, action.model);
 
         next_state.m_node_metadata.mutable_set(node_id, std::move(action.metadata));
 
