@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <string>
 #include <typeinfo>
+#include <utility>
+
 
 namespace platform
 {
@@ -14,9 +16,10 @@ class ValueType
     struct TypeTag {};
 
     template <typename T>
-    ValueType(const std::string& name, TypeTag<T>);
+    ValueType(std::string name, TypeTag<T>);
 
     ValueType(const ValueType& other);
+    ValueType(ValueType&& other);
 
     const std::string& name() const;
 
@@ -36,8 +39,8 @@ class ValueType
 //
 
 template <typename T>
-ValueType::ValueType(const std::string& name, TypeTag<T>)
-  : m_name(name)
+ValueType::ValueType(std::string name, TypeTag<T>)
+  : m_name(std::move(name))
   , m_type_hash_code(typeid(T).hash_code())
 {}
 

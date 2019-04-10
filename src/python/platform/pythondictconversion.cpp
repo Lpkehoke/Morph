@@ -1,4 +1,5 @@
-#pragma once
+#define PYTHON_DICT_CONVERSION_IMPL
+#include "platform/pythondictconversion.h"
 
 #include "platform/nodestorageactions.h"
 #include "platform/nodestoragetypes.h"
@@ -10,9 +11,6 @@
 namespace py = pybind11;
 
 using namespace platform;
-
-template <typename T>
-T from_dict(const py::dict& input);
 
 
 //

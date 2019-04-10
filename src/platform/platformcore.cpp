@@ -34,7 +34,7 @@ std::vector<KnobSchema> default_knob_shcemas(const PluginManagerPtr& plugin_mana
     result.push_back(std::move(float_schema));
 
     KnobSchema integer_schema("IntegerKnob");
-    integer_schema.add_attribute("Value", plugin_manager->make_value("Integer", 0));
+    integer_schema.add_attribute("Value", plugin_manager->make_value("Integer", static_cast<std::int64_t>(0)));
     result.push_back(std::move(integer_schema));
 
     return result;
@@ -59,6 +59,21 @@ PlatformCore::PlatformCore()
     {
         m_plugin_manager->register_knob_schema(std::move(knob_schema));
     }
+}
+
+NodeStoragePtr PlatformCore::node_storage() const
+{
+    return m_node_storage;
+}
+
+PluginManagerPtr PlatformCore::plugin_manager() const
+{
+    return m_plugin_manager;
+}
+
+LoggerPtr PlatformCore::logger() const
+{
+    return m_logger;
 }
 
 } // namespace platform

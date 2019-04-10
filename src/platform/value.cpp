@@ -23,6 +23,7 @@ Value::Value(const Value& other)
 }
 
 Value::Value(Value&& other)
+  : m_held(nullptr)
 {
     std::swap(m_held, other.m_held);
 }

@@ -1,5 +1,8 @@
 #include "platform/valuetype.h"
 
+#include <utility>
+
+
 namespace platform
 {
 
@@ -7,6 +10,12 @@ ValueType::ValueType(const ValueType& other)
   : m_name(other.m_name)
   , m_type_hash_code(other.m_type_hash_code)
 {}
+
+ValueType::ValueType(ValueType&& other)
+{
+    std::swap(m_name, other.m_name);
+    std::swap(m_type_hash_code, other.m_type_hash_code);
+}
 
 const std::string& ValueType::name() const
 {

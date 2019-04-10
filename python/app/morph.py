@@ -1,14 +1,12 @@
-from python.platform import NodeStorage, PluginManager, Logger
-from python.ui import UiManager
 import threading
+
+from python.platform import PlatformCore
+from python.ui import UiManager
 
 
 def start():
-    node_factory_registry = PluginManager()
-    logger = Logger()
-
-    node_storage = NodeStorage(node_factory_registry, logger)
-    ui_manager = UiManager(node_storage, logger)
+    platform_core = PlatformCore()
+    ui_manager = UiManager(platform_core.node_storage(), platform_core.logger())
 
     def update():
         ui_manager.on_update()

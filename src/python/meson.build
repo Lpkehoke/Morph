@@ -1,5 +1,10 @@
 bindplatform_src = [
-    'platform/module.cpp'
+    'platform/bindlogger.cpp',
+    'platform/bindnodestorage.cpp',
+    'platform/bindplatformcore.cpp',
+    'platform/bindpluginmanager.cpp',
+    'platform/module.cpp',
+    'platform/pythondictconversion.cpp'
 ]
 
 bindcomputeengine_src = [

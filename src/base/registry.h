@@ -14,7 +14,7 @@ class Registry
 {
   public:
     using EntityMap = std::map<std::string, Entity>;
-    using GetEntityName = std::function<const std::string& (const Entity&)>;
+    using GetEntityName = std::function<std::string (const Entity&)>;
     
     Registry(GetEntityName get_entity_name);
 
@@ -39,7 +39,7 @@ Registry<Entity>::Registry(GetEntityName get_entity_name)
 template <typename Entity>
 void Registry<Entity>::register_entity(Entity entity)
 {
-    const std::string& name = m_get_entity_name(entity);
+    std::string name = m_get_entity_name(entity);
 
     auto itr = m_entity_map.find(name);
     if (itr != m_entity_map.end())
