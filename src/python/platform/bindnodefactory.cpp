@@ -2,6 +2,7 @@
 #include "python/platform/pynodefactory.h"
 
 #include "platform/nodefactory.h"
+#include "platform/pluginmanager.h"
 
 #include <pybind11/pybind11.h>
 
@@ -44,7 +45,7 @@ const PyNodeFactory::NodeKnobsInfo& PyNodeFactory::knobs_info() const
 
 void bind_node_factory(py::handle scope)
 {
-    py::class_<NodeFactory, PyNodeFactory>(scope, "NodeFactory")
+    py::class_<NodeFactory, PyNodeFactory, NodeFactoryPtr>(scope, "NodeFactory")
         .def(py::init<>())
         .def("create", &NodeFactory::create)
         .def("model", &NodeFactory::model)

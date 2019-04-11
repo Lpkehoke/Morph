@@ -1,5 +1,6 @@
 #include "python/platform/bindplatform.h"
 
+#include "platform/nodefactory.h"
 #include "platform/platformcoretypes.h"
 #include "platform/pluginmanager.h"
 
@@ -13,5 +14,6 @@ namespace py = pybind11;
 void bind_plugin_manager(py::handle scope)
 {
     py::class_<PluginManager, PluginManagerPtr>(scope, "PluginManager")
-        .def(py::init<>());
+        .def(py::init<>())
+        .def("register_node_factory", &PluginManager::register_node_factory);
 }
