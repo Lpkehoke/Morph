@@ -43,7 +43,6 @@ class UiManager(QObject):
 
         output_viewer = OutputViewer(self.logger)
         output_viewer.show()
-        self.widgets.append(output_viewer)
 
         file_menu = self.window.menuBar().addMenu('File')
         node_menu = self.window.menuBar().addMenu('Node')
@@ -61,6 +60,7 @@ class UiManager(QObject):
     def on_update(self):
         self.state = self.node_storage.state()
         self.on_state_updated.emit()
+
 
     @Slot()
     def _on_update(self):

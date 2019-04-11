@@ -1,4 +1,5 @@
 #include "python/platform/bindplatform.h"
+#include "python/platform/loggeradapter.h"
 
 #include "platform/logger.h"
 #include "platform/platformcoretypes.h"
@@ -7,8 +8,44 @@
 #include <pybind11/stl.h>
 #include <pybind11/chrono.h>
 
+#include <utility>
+
 namespace py = pybind11;
 using namespace platform;
+
+
+LoggerAdapter::LoggerAdapter(platform::LoggerPtr logger)
+  : m_logger(std::move(logger))
+{}
+
+void LoggerAdapter::log(Logger::Severity severity, const std::string& message)
+{
+    m_logger->log(std::move(severity), message);
+}
+
+Logger::State LoggerAdapter::state() const
+{
+    return m_logger->state();
+}
+
+void LoggerAdapter::subscribe(const pybind11::object& on_update)
+{
+    m_logger->subscribe(
+        [on_update]()
+        {
+            py::gil_scoped_acquire gil;
+
+            try
+            {
+                on_update();
+            }
+            catch(const py::error_already_set&)
+            {
+                // TODO: supply exception info here.
+                throw std::runtime_error("Python exception occured during callback evaluation.");
+            }
+        });
+}
 
 void bind_logger(py::handle scope)
 {
@@ -40,8 +77,9 @@ void bind_logger(py::handle scope)
                 return lr.message;
             });
 
-    py::class_<Logger, LoggerPtr>(scope, "Logger")
-        .def(py::init<>())
-        .def("log", &Logger::log)
-        .def("state", &Logger::state);
+    py::class_<LoggerAdapter>(scope, "Logger")
+        .def(py::init<LoggerPtr>())
+        .def("log", &LoggerAdapter::log)
+        .def("state", &LoggerAdapter::state)
+        .def("subscribe", &LoggerAdapter::subscribe);
 }

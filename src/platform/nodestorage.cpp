@@ -174,6 +174,7 @@ void NodeStorage::dispatch(NodeStorageAction action)
             impl->m_logger->log(Logger::Severity::Error, ex.what());
         }
 
+        lock.release();
         notify();
     });
 

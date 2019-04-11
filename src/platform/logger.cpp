@@ -64,6 +64,7 @@ void Logger::post_record_to_queue(LogRecord&& lr)
         tbb::spin_mutex::scoped_lock lock(impl->m_state_mutex);
         impl->m_state.emplace_back(std::move(lr));
 
+        lock.release();
         notify();
     });
 

@@ -1,5 +1,3 @@
-import threading
-
 from python.platform import PlatformCore, NodeFactory, KnobsInfo, Node
 from python.ui import UiManager
 
@@ -19,7 +17,7 @@ class DummyNodeFactory(NodeFactory):
         self._knobs_info = KnobsInfo()
 
     def create(self, input_knobs, output_knobs):
-        return DummyNode(input_knobs, output_knobs)
+        return None
 
     def model(self):
         return self._model_name
@@ -37,11 +35,6 @@ def start():
 
     ui_manager = UiManager(platform_core.node_storage(), platform_core.logger())
 
-    def update():
-        ui_manager.on_update()
-        threading.Timer(1.0, update).start()
-
-    update()
     ui_manager.start()
 
 
