@@ -45,6 +45,9 @@ const PyNodeFactory::NodeKnobsInfo& PyNodeFactory::knobs_info() const
 
 void bind_node_factory(py::handle scope)
 {
+    py::class_<NodeFactory::NodeKnobsInfo>(scope, "KnobsInfo")
+        .def(py::init<>());
+
     py::class_<NodeFactory, PyNodeFactory, NodeFactoryPtr>(scope, "NodeFactory")
         .def(py::init<>())
         .def("create", &NodeFactory::create)
