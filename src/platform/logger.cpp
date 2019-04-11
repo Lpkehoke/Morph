@@ -1,11 +1,34 @@
 #include "logger.h"
 
+#include "base/taskqueue.h"
+
+#include <tbb/spin_mutex.h>
+
+#include <exception>
 #include <chrono>
 #include <string>
 #include <utility>
 
 namespace platform
 {
+
+struct Logger::Impl
+{
+    State                             m_state;
+    base::TaskQueue                   m_action_queue;
+
+    tbb::spin_mutex                   m_mutex_post_record;
+    tbb::spin_mutex                   m_mutex_get_state;
+};
+
+Logger::Logger()
+    : impl(new Impl())
+{}
+
+Logger::~Logger()
+{
+    delete impl;
+}
 
 Logger::LogRecord::LogRecord(LogRecord&& other)
     : message(std::move(other.message))
@@ -27,20 +50,28 @@ void Logger::log(Severity severity, const std::string& message)
     lr.message = message;
     lr.timestamp = std::chrono::system_clock::now();
 
-    this->post_record_to_queue(std::move(lr));
+    post_record_to_queue(std::move(lr));
 }
 
 Logger::State Logger::state() const
 {
-    return this->m_state;
+    tbb::spin_mutex::scoped_lock lock(impl->m_mutex_get_state);
+    return impl->m_state;
 }
 
-void Logger::post_record_to_queue(LogRecord&& lr) {
-    this->m_action_queue.post(
-        [=]()
+void Logger::post_record_to_queue(LogRecord&& lr)
+{
+    impl->m_action_queue.post([=]() mutable // TODO  segmentation fault (core dumped) 
+    {
+        tbb::spin_mutex::scoped_lock lock(impl->m_mutex_post_record);
+        impl->m_state.emplace_back(std::move(lr));
+
+        impl->m_action_queue.post([=]() mutable
         {
-            this->m_state.emplace_back(std::move(lr));
+            notify();
         });
+    });
+
 }
 
 } // namespace platform

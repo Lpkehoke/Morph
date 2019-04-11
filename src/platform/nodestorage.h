@@ -1,5 +1,7 @@
 #pragma once
 
+#include "base/observable.h"
+
 #include "nodestorageactions.h"
 #include "nodestoragetypes.h"
 
@@ -12,7 +14,7 @@ namespace platform { class Logger; }
 namespace platform
 {
 
-class NodeStorage
+class NodeStorage : public base::Observable
 {
   public:
     using OnUpdateFn = std::function<void()>;
@@ -21,11 +23,10 @@ class NodeStorage
         NodeFactoryRegistry*    node_factory_registry,
         Logger*                 logger);
 
-    ~NodeStorage();
+    ~NodeStorage() override;
 
     void                dispatch(NodeStorageAction action);
     NodeStorageState    state() const;
-    void                subscribe(OnUpdateFn on_update);
 
   private:
     struct Impl;

@@ -1,5 +1,6 @@
 base_src = [
-    'taskqueue.cpp'
+    'taskqueue.cpp',
+    'observable.cpp'
 ]
 
 base = static_library(

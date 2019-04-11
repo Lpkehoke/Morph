@@ -11,6 +11,9 @@
 
 #include "base/immutable/map.h"
 #include "base/taskqueue.h"
+#include "base/observable.h"
+
+#include <tbb/spin_mutex.h>
 
 #include <memory>
 #include <stdexcept>
@@ -38,8 +41,8 @@ class Reducer
     {
         return std::visit(
             [&](auto&& a)
-            { 
-                return reduce(std::move(state), std::move(a)); 
+            {
+                return reduce(std::move(state), std::move(a));
             },
             std::move(action));
     }
@@ -137,11 +140,11 @@ struct NodeStorage::Impl
         , m_logger(logger)
     {}
 
-    base::TaskQueue         m_action_queue;
     NodeStorageState        m_state;
     Reducer                 m_reducer;
-    std::vector<OnUpdateFn> m_subscribers;
     Logger*                 m_logger;
+    base::TaskQueue         m_action_queue;
+    tbb::spin_mutex         m_mutex_dispatch;
 };
 
 NodeStorage::NodeStorage(
@@ -159,40 +162,30 @@ void NodeStorage::dispatch(NodeStorageAction action)
 {
     impl->m_action_queue.post([=]() mutable
     {
+        tbb::spin_mutex::scoped_lock lock(impl->m_mutex_dispatch);
+
         try
         {
             impl->m_state = impl->m_reducer.reduce(
                 std::move(impl->m_state),
                 std::move(action));
-            
-            for (auto& cb : impl->m_subscribers)
-            {
-                try
-                {
-                    cb();
-                }
-                catch(const std::exception& ex)
-                {
-                    ex.what();
-                }
-            }
         }
         catch (const std::exception& ex)
         {
             impl->m_logger->log(Logger::Severity::Error, ex.what());
         }
+
+        impl->m_action_queue.post([=](){
+            notify();
+        });
     });
+
 }
 
 NodeStorageState NodeStorage::state() const
 {
     // TODO: synchronization needed! (atomic root ptr in the map?)
     return impl->m_state;
-}
-
-void NodeStorage::subscribe(OnUpdateFn on_update)
-{
-    impl->m_subscribers.push_back(std::move(on_update));
 }
 
 } // namespace platform

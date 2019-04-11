@@ -1,16 +1,17 @@
 #pragma once
 
-#include "base/taskqueue.h"
+#include "base/observable.h"
 
 #include <chrono>
 #include <cstddef>
-#include <string>
 #include <vector>
+#include <string>
+
 
 namespace platform
 {
 
-class Logger
+class Logger final: public base::Observable
 {
   public:
     enum class Severity
@@ -38,8 +39,8 @@ class Logger
 
     using State = std::vector<LogRecord>;
 
-    Logger()  = default;
-    ~Logger() = default;
+    Logger();
+    ~Logger() override;
 
     void log(Severity severity, const std::string& message);
 
@@ -48,8 +49,8 @@ class Logger
   private:
     void post_record_to_queue(LogRecord&& lr);
 
-    State               m_state;
-    base::TaskQueue     m_action_queue;
+    struct Impl;
+    Impl* impl;
 };
 
 } // namespace platform
