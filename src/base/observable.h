@@ -11,12 +11,12 @@ class Observable
       using OnUpdateFn = std::function<void()>;
 
       Observable();
-      virtual ~Observable();
+      ~Observable();
 
       void subscribe(OnUpdateFn on_update);
 
   protected:
-      void notify();
+      void notify() const;
 
   private:
       struct Impl;

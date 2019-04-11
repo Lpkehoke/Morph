@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <vector>
 #include <string>
+#include <thread>
+#include <chrono>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -11,6 +13,7 @@
 using namespace testing;
 using namespace platform;
 using namespace std;
+using namespace std::literals::chrono_literals;
 
 using Severity = Logger::Severity;
 
@@ -39,6 +42,8 @@ TEST(LoggerTest, create_logger)
     for(size_t i = 0; i < size; ++i) {
         logger.log(logs_severity[i], logs_str[i]);
     }
+
+    this_thread::sleep_for(1ms);
 
     auto logReport = logger.state();
 

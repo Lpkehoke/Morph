@@ -16,9 +16,7 @@ struct Logger::Impl
 {
     State                             m_state;
     base::TaskQueue                   m_action_queue;
-
-    tbb::spin_mutex                   m_mutex_post_record;
-    tbb::spin_mutex                   m_mutex_get_state;
+    tbb::spin_mutex                   m_state_mutex;
 };
 
 Logger::Logger()
@@ -55,21 +53,18 @@ void Logger::log(Severity severity, const std::string& message)
 
 Logger::State Logger::state() const
 {
-    tbb::spin_mutex::scoped_lock lock(impl->m_mutex_get_state);
+    tbb::spin_mutex::scoped_lock lock(impl->m_state_mutex);
     return impl->m_state;
 }
 
 void Logger::post_record_to_queue(LogRecord&& lr)
 {
-    impl->m_action_queue.post([=]() mutable // TODO  segmentation fault (core dumped) 
+    impl->m_action_queue.post([=]()
     {
-        tbb::spin_mutex::scoped_lock lock(impl->m_mutex_post_record);
+        tbb::spin_mutex::scoped_lock lock(impl->m_state_mutex);
         impl->m_state.emplace_back(std::move(lr));
 
-        impl->m_action_queue.post([=]() mutable
-        {
-            notify();
-        });
+        notify();
     });
 
 }

@@ -39,7 +39,7 @@ class Logger final: public base::Observable
     using State = std::vector<LogRecord>;
 
     Logger();
-    ~Logger() override;
+    ~Logger();
 
     void log(Severity severity, const std::string& message);
 

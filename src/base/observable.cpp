@@ -10,7 +10,7 @@ namespace base
     struct Observable::Impl
     {
         std::vector<OnUpdateFn>    m_subscribers;
-        tbb::spin_mutex            m_mutex_notify;
+        tbb::spin_mutex            m_mutex;
     };
 
     Observable::Observable()
@@ -24,12 +24,13 @@ namespace base
 
     void Observable::subscribe(OnUpdateFn on_update)
     {
+        tbb::spin_mutex::scoped_lock lock(impl->m_mutex);
         impl->m_subscribers.emplace_back(std::move(on_update));
     }
 
-    void Observable::notify()
+    void Observable::notify() const
     {
-        tbb::spin_mutex::scoped_lock lock(impl->m_mutex_notify);
+        tbb::spin_mutex::scoped_lock lock(impl->m_mutex);
 
         for (const auto& cb : impl->m_subscribers)
         {

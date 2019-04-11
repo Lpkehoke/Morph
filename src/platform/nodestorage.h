@@ -21,7 +21,7 @@ class NodeStorage : public base::Observable
         PluginManagerPtr   plugin_manager,
         LoggerPtr          logger);
 
-    ~NodeStorage() override;
+    ~NodeStorage();
 
     void                dispatch(NodeStorageAction action);
     NodeStorageState    state() const;
