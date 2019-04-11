@@ -8,10 +8,10 @@
 namespace platform { class NodeStorageState; }
 
 
-class NodeStorageAdaptor
+class NodeStorageAdapter
 {
   public:
-    NodeStorageAdaptor(platform::NodeStoragePtr node_storage);
+    NodeStorageAdapter(platform::NodeStoragePtr node_storage);
 
     void dispatch(const pybind11::dict& action);
     void subscribe(const pybind11::object& on_update);

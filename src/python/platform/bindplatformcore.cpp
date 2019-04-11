@@ -1,6 +1,6 @@
 #include "python/platform/bindplatform.h"
 
-#include "python/platform/nodestorageadaptor.h"
+#include "python/platform/nodestorageadapter.h"
 
 #include "platform/platformcore.h"
 #include "platform/platformcoretypes.h"
@@ -20,7 +20,7 @@ void bind_platform_core(py::handle scope)
             "node_storage",
             [](const PlatformCore& platform_core)
             {
-                return NodeStorageAdaptor(platform_core.node_storage());
+                return NodeStorageAdapter(platform_core.node_storage());
             })
         .def("plugin_manager", &PlatformCore::plugin_manager)
         .def("logger", &PlatformCore::logger);

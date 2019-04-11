@@ -1,5 +1,5 @@
 #include "python/platform/bindplatform.h"
-#include "python/platform/nodestorageadaptor.h"
+#include "python/platform/nodestorageadapter.h"
 #include "python/platform/pythondictconversion.h"
 
 #include "python/base/bindimmutablemap.h"
@@ -19,14 +19,14 @@ namespace py = pybind11;
 
 
 //
-//  NodeStorageAdaptor implementation.
+//  NodeStorageAdapter implementation.
 //
 
-NodeStorageAdaptor::NodeStorageAdaptor(NodeStoragePtr node_storage)
+NodeStorageAdapter::NodeStorageAdapter(NodeStoragePtr node_storage)
     : m_node_storage(std::move(node_storage))
 {}
 
-void NodeStorageAdaptor::dispatch(const py::dict& action)
+void NodeStorageAdapter::dispatch(const py::dict& action)
 {
     std::string action_type = py::str(action["type"]);
 
@@ -56,7 +56,7 @@ void NodeStorageAdaptor::dispatch(const py::dict& action)
     }
 }
 
-void NodeStorageAdaptor::subscribe(const py::object& on_update)
+void NodeStorageAdapter::subscribe(const py::object& on_update)
 {
     m_node_storage->subscribe(
         [on_update]()
@@ -75,7 +75,7 @@ void NodeStorageAdaptor::subscribe(const py::object& on_update)
         });
 }
 
-NodeStorageState NodeStorageAdaptor::state()
+NodeStorageState NodeStorageAdapter::state()
 {
     return m_node_storage->state();
 }
@@ -90,11 +90,6 @@ void bind_node_storage(py::handle scope)
 
     py::class_<Attribute, AttrPtr>(scope, "Attribute");
     py::class_<Knob, KnobPtr>(scope, "Knob");
-    
-    ImmutableMap<Node::KnobMap>(scope, "KnobMap");
-    py::class_<Node, NodePtr>(scope, "Node")
-        .def("input_knobs", &Node::input_knobs)
-        .def("output_knobs", &Node::output_knobs);
 
     py::class_<NodeStorageState>(scope, "NodeStorageState")
         .def_property_readonly(
@@ -122,8 +117,8 @@ void bind_node_storage(py::handle scope)
                 return state.m_node_metadata;
             });
     
-    py::class_<NodeStorageAdaptor>(scope, "NodeStorage")
-        .def("dispatch", &NodeStorageAdaptor::dispatch)
-        .def("state", &NodeStorageAdaptor::state)
-        .def("subscribe", &NodeStorageAdaptor::subscribe);
+    py::class_<NodeStorageAdapter>(scope, "NodeStorage")
+        .def("dispatch", &NodeStorageAdapter::dispatch)
+        .def("state", &NodeStorageAdapter::state)
+        .def("subscribe", &NodeStorageAdapter::subscribe);
 }

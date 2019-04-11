@@ -1,5 +1,7 @@
 bindplatform_src = [
     'platform/bindlogger.cpp',
+    'platform/bindnode.cpp',
+    'platform/bindnodefactory.cpp',
     'platform/bindnodestorage.cpp',
     'platform/bindplatformcore.cpp',
     'platform/bindpluginmanager.cpp',
