@@ -30,7 +30,7 @@ template <typename T>
 const T& Attribute::get(float time) const
 {
     // Placeholder until good implementation is provided.
-    return m_value.get<T>();
+    return m_value.cast<T>();
 }
 
 } // namespace core
