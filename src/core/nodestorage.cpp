@@ -1,15 +1,15 @@
 #include "core/nodestorage.h"
 
+#include "core/coretypes.h"
+#include "core/dict.h"
 #include "core/knob.h"
 #include "core/logger.h"
 #include "core/node.h"
 #include "core/nodestorageactions.h"
 #include "core/nodestoragetypes.h"
 #include "core/operations.h"
-#include "core/pluginmanager.h"
 
 #include "foundation/immutable/map.h"
-#include "foundation/observable.h"
 #include "foundation/taskqueue.h"
 
 #include <tbb/spin_mutex.h>
@@ -66,14 +66,7 @@ class Reducer
     {
         auto next_state = std::move(state);
 
-        auto metadata = next_state.m_node_metadata.get(action.id);
-
-        for (auto pair : action.metadata)
-        {
-            metadata.mutable_set(pair.first, pair.second);
-        }
-
-        next_state.m_node_metadata.mutable_set(action.id, metadata);
+        next_state.m_node_metadata.mutable_get(action.id).update(action.metadata);
 
         return next_state;
     }

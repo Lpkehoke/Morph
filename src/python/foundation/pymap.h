@@ -3,12 +3,12 @@
 #include <pybind11/pybind11.h>
 
 template <typename Map>
-class __attribute__ ((visibility("hidden"))) ImmutableMap : public pybind11::class_<Map>
+class __attribute__ ((visibility("hidden"))) PyMap : public pybind11::class_<Map>
 {
   public:
     using pybind11::class_<Map>::def;
 
-    ImmutableMap(pybind11::handle scope, const char *name)
+    PyMap(pybind11::handle scope, const char *name)
       : pybind11::class_<Map>(scope, name)
     {
         def(pybind11::init<>());

@@ -1,5 +1,6 @@
 core_src = [
     'attribute.cpp',
+    'dict.cpp',
     'enabledispatch.cpp',
     'knob.cpp',
     'knobschema.cpp',

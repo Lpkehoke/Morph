@@ -2,6 +2,8 @@
 
 #include "core/nodestoragetypes.h"
 
+#include <string>
+
 namespace core { class KnobSchema; }
 namespace core { class PluginManager; }
 

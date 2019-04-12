@@ -1,16 +1,19 @@
 #pragma once
 
-#include "core/nodestorageactions.h"
-#include "core/nodestoragetypes.h"
+namespace core { class Dict; }
+namespace core { class CreateNode; }
+namespace core { class RemoveNode; }
+namespace core { class UpdateNodeMetadata; }
+namespace core { class MakeConnection; }
 
-#include <pybind11/pybind11.h>
+namespace pybind11 { class dict; }
 
 template <typename T>
 T from_dict(const pybind11::dict& input);
 
 #ifndef PYTHON_DICT_CONVERSION_IMPL
 
-extern template core::Metadata from_dict(const pybind11::dict& input);
+extern template core::Dict from_dict(const pybind11::dict& input);
 extern template core::CreateNode from_dict(const pybind11::dict& input);
 extern template core::RemoveNode from_dict(const pybind11::dict& input);
 extern template core::UpdateNodeMetadata from_dict(const pybind11::dict& input);

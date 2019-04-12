@@ -10,6 +10,5 @@ class PyNodeFactory : public core::NodeFactory
         core::Node::KnobMap input_knobs,
         core::Node::KnobMap output_knobs) const override;
     
-    virtual const std::string& model() const override;
-    virtual const NodeKnobsInfo& knobs_info() const override;
+    virtual core::Dict params() const override;
 };

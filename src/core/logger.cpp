@@ -4,7 +4,6 @@
 
 #include <tbb/spin_mutex.h>
 
-#include <exception>
 #include <chrono>
 #include <string>
 #include <utility>

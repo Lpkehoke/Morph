@@ -1,16 +1,20 @@
 #define PYTHON_DICT_CONVERSION_IMPL
 #include "core/pythondictconversion.h"
 
+#include "core/dict.h"
 #include "core/nodestorageactions.h"
 #include "core/nodestoragetypes.h"
 
 #include <pybind11/pybind11.h>
 
-#include <exception>
+#include <stdexcept>
+#include <string>
+#include <utility>
 
 namespace py = pybind11;
 
 using namespace core;
+using namespace foundation;
 
 
 //
@@ -18,9 +22,9 @@ using namespace core;
 //
 
 template <>
-Metadata from_dict(const py::dict& input)
+Dict from_dict(const py::dict& input)
 {
-    Metadata metadata;
+    Dict dict;
 
     for (const auto& pair : input)
     {
@@ -30,17 +34,22 @@ Metadata from_dict(const py::dict& input)
         if (PyFloat_Check(val.ptr()))
         {
             double val_double = val.cast<double>();
-            metadata.mutable_set(key_str, val_double);
+            dict[key_str] = val_double;
         }
         else if (PyUnicode_Check(val.ptr()))
         {
             std::string val_str = val.cast<std::string>();
-            metadata.mutable_set(key_str, val_str);
+            dict[key_str] = std::move(val_str);
         }
         else if (PyBool_Check(val.ptr()))
         {
             bool val_bool = val.cast<bool>();
-            metadata.mutable_set(key_str, val_bool);
+            dict[key_str] = val_bool;
+        }
+        else if (PyDict_Check(val.ptr()))
+        {
+            Dict val_dict = from_dict<Dict>(val.cast<py::dict>());
+            dict[key_str] = std::move(val_dict);
         }
         else
         {
@@ -48,7 +57,7 @@ Metadata from_dict(const py::dict& input)
         }
     }
 
-    return metadata;
+    return dict;
 }
 
 
@@ -63,7 +72,7 @@ CreateNode from_dict(const py::dict& input)
     create_node.model = input["model"].cast<std::string>();
 
     py::dict metadata_dict = input["metadata"].cast<py::dict>();
-    create_node.metadata = from_dict<Metadata>(metadata_dict);
+    create_node.metadata = from_dict<Dict>(metadata_dict);
 
     return create_node;
 }
@@ -95,7 +104,7 @@ UpdateNodeMetadata from_dict(const py::dict& input)
     update_node_metadata.id = input["id"].cast<NodeId>();
     
     py::dict metadata_dict = input["metadata"].cast<py::dict>();
-    update_node_metadata.metadata = from_dict<Metadata>(metadata_dict);
+    update_node_metadata.metadata = from_dict<Dict>(metadata_dict);
 
     return update_node_metadata;
 }

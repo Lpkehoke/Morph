@@ -1,10 +1,12 @@
 #include "python/core/bindcore.h"
 
-#include "core/nodefactory.h"
 #include "core/coretypes.h"
+#include "core/nodefactory.h"
 #include "core/pluginmanager.h"
 
 #include <pybind11/pybind11.h>
+
+#include <utility>
 
 using namespace core;
 

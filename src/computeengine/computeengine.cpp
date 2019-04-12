@@ -2,11 +2,10 @@
 
 #include "computegraph.h"
 
+#include "core/dict.h"
 #include "core/knob.h"
 #include "core/node.h"
 #include "core/nodestoragetypes.h"
-
-#include "foundation/immutable/map.h"
 
 #include <stack>
 #include <utility>
@@ -29,7 +28,7 @@ std::stack<NodeId> retrieve_observable_nodes(const NodeStorageState& state)
         const auto& metadata = metadata_pair.second;
 
         if (metadata.contains("compute_engine_observable")
-            && std::get<bool>(metadata.get("compute_engine_observable")))
+            && std::get<bool>(metadata["compute_engine_observable"]))
         {
             result.push(metadata_pair.first);
         }

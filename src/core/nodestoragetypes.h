@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/dict.h"
+
 #include "foundation/immutable/map.h"
 
 #include <cstdint>
@@ -25,10 +27,7 @@ using NodePtr = std::shared_ptr<Node>;
 using AttributeCollection   = foundation::Map<AttrId, AttrPtr>;
 using KnobCollection        = foundation::Map<KnobId, KnobPtr>;
 using NodeCollection        = foundation::Map<NodeId, NodePtr>;
-
-using MetadataProperty      = std::variant<std::string, double, bool>;
-using Metadata              = foundation::Map<std::string, MetadataProperty>;
-using MetadataCollection    = foundation::Map<NodeId, Metadata>;
+using MetadataCollection    = foundation::Map<NodeId, Dict>;
 
 struct NodeStorageState
 {

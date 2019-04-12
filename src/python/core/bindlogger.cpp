@@ -1,13 +1,15 @@
 #include "python/core/bindcore.h"
 #include "python/core/loggeradapter.h"
 
-#include "core/logger.h"
 #include "core/coretypes.h"
+#include "core/logger.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/chrono.h>
 
+#include <stdexcept>
+#include <string>
 #include <utility>
 
 namespace py = pybind11;

@@ -2,17 +2,27 @@
 #include "python/core/nodestorageadapter.h"
 #include "python/core/pythondictconversion.h"
 
-#include "python/foundation/bindimmutablemap.h"
+#include "python/foundation/pymap.h"
 
 #include "core/attribute.h"
+#include "core/coretypes.h"
 #include "core/knob.h"
 #include "core/logger.h"
 #include "core/nodestorage.h"
-#include "core/coretypes.h"
+#include "core/nodestoragetypes.h"
 #include "core/pluginmanager.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#include <stdexcept>
+#include <string>
+#include <utility>
+
+namespace core { struct CreateNode; }
+namespace core { struct MakeConnection; }
+namespace core { struct RemoveNode; }
+namespace core { struct UpdateNodeMetadata; }
 
 using namespace core;
 
@@ -83,11 +93,10 @@ NodeStorageState NodeStorageAdapter::state()
 
 void bind_node_storage(py::handle scope)
 {
-    ImmutableMap<NodeCollection>(scope, "NodeCollection");
-    ImmutableMap<KnobCollection>(scope, "KnobKollection");
-    ImmutableMap<AttributeCollection>(scope, "AttributeCollection");
-    ImmutableMap<MetadataCollection>(scope, "MetadataCollection");
-    ImmutableMap<Metadata>(scope, "Metadata");
+    PyMap<NodeCollection>(scope, "NodeCollection");
+    PyMap<KnobCollection>(scope, "KnobKollection");
+    PyMap<AttributeCollection>(scope, "AttributeCollection");
+    PyMap<MetadataCollection>(scope, "MetadataCollection");
 
     py::class_<Attribute, AttrPtr>(scope, "Attribute");
     py::class_<Knob, KnobPtr>(scope, "Knob");

@@ -6,7 +6,6 @@
 
 #include "foundation/registry.h"
 
-#include <functional>
 #include <utility>
 
 using namespace foundation;
@@ -24,7 +23,7 @@ class NodeFactoryRegistry : public Registry<NodeFactoryPtr>
       : Registry<NodeFactoryPtr>(
           [](const NodeFactoryPtr& entity)
           {
-              return entity->model();
+              return std::get<std::string>(entity->params()["model"]);
           }
       )
     {}

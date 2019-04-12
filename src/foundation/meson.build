@@ -1,6 +1,6 @@
 foundation_src = [
-    'taskqueue.cpp',
-    'observable.cpp'
+    'observable.cpp',
+    'taskqueue.cpp'
 ]
 
 foundation = static_library(

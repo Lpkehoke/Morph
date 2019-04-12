@@ -4,6 +4,7 @@
 
 #include <exception>
 #include <utility>
+#include <vector>
 
 namespace foundation
 {

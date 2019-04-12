@@ -1,13 +1,6 @@
 #pragma once
 
-#include "core/logger.h"
-#include "core/nodestorage.h"
-#include "core/nodestorageactions.h"
 #include "core/coretypes.h"
-#include "core/pluginmanager.h"
-
-#include <memory>
-
 
 namespace core
 {
