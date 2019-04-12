@@ -1,4 +1,4 @@
-#include "base/taskqueue.h"
+#include "foundation/taskqueue.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -11,7 +11,7 @@
 #include <thread>
 #include <utility>
 
-using namespace base;
+using namespace foundation;
 using namespace testing;
 using namespace std::chrono_literals;
 

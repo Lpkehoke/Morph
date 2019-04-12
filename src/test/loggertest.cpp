@@ -1,5 +1,4 @@
-#include "platform/logger.h"
-#include "base/observable.h"
+#include "core/logger.h"
 
 #include <cstddef>
 #include <vector>
@@ -11,7 +10,7 @@
 #include <gtest/gtest.h>
 
 using namespace testing;
-using namespace platform;
+using namespace core;
 using namespace std;
 using namespace std::literals::chrono_literals;
 

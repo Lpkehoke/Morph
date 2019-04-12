@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from python.platform import NodeStorage, NodeFactoryRegistry, Logger
+from python.core import NodeStorage, NodeFactoryRegistry, Logger
 
 
 class TestNodeStorage(unittest.TestCase):

@@ -1,24 +1,24 @@
-bindplatform_src = [
-    'platform/bindlogger.cpp',
-    'platform/bindnode.cpp',
-    'platform/bindnodefactory.cpp',
-    'platform/bindnodestorage.cpp',
-    'platform/bindplatformcore.cpp',
-    'platform/bindpluginmanager.cpp',
-    'platform/module.cpp',
-    'platform/pythondictconversion.cpp'
+bindcore_src = [
+    'core/bindlogger.cpp',
+    'core/bindnode.cpp',
+    'core/bindnodefactory.cpp',
+    'core/bindnodestorage.cpp',
+    'core/bindcore.cpp',
+    'core/bindpluginmanager.cpp',
+    'core/module.cpp',
+    'core/pythondictconversion.cpp'
 ]
 
 bindcomputeengine_src = [
     'computeengine/module.cpp'
 ]
 
-bindplatform = shared_library(
-    '_platform',
-    bindplatform_src,
+bindcore = shared_library(
+    '_core',
+    bindcore_src,
     include_directories: root_include_dir,
     dependencies: [
-        platform_dep,
+        core_dep,
         pybind_dep,
         python_dep],
     name_prefix: ''
@@ -30,7 +30,7 @@ bindcomputeengine = shared_library(
     include_directories: root_include_dir,
     dependencies: [
         computeengine_dep,
-        platform_dep,
+        core_dep,
         pybind_dep,
         python_dep],
     name_prefix: ''

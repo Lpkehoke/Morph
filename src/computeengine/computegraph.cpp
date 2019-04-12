@@ -2,14 +2,14 @@
 
 #include "computetask.h"
 
-#include "platform/nodestorageactions.h"
+#include "core/nodestorageactions.h"
 
 #include <tbb/task.h>
 
 #include <stdexcept>
 #include <utility>
 
-using namespace platform;
+using namespace core;
 
 namespace computeengine
 {

@@ -2,8 +2,8 @@
 
 #include "computeenginetypes.h"
 
-#include "platform/enabledispatch.h"
-#include "platform/nodestoragetypes.h"
+#include "core/enabledispatch.h"
+#include "core/nodestoragetypes.h"
 
 #include <tbb/concurrent_unordered_map.h>
 
@@ -13,23 +13,23 @@
 namespace computeengine
 {
 
-class ComputeGraph : public platform::EnableDispatch
+class ComputeGraph : public core::EnableDispatch
 {
   public:
     ComputeGraph(
-        const platform::EnableDispatch& enable_dispatch);
+        const core::EnableDispatch& enable_dispatch);
 
-    void add_node(platform::NodeId node_id);
+    void add_node(core::NodeId node_id);
     void add_connection(
-        platform::NodeId output_node_id,
-        platform::NodeId input_node_id);
+        core::NodeId output_node_id,
+        core::NodeId input_node_id);
     
-    void spawn_compute_tasks(platform::NodeStorageState state);
+    void spawn_compute_tasks(core::NodeStorageState state);
 
   private:
     using AttrMap = tbb::concurrent_unordered_map<
-        platform::AttrId,
-        platform::AttrPtr>;
+        core::AttrId,
+        core::AttrPtr>;
 
     void finalize();
 

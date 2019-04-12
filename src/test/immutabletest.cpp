@@ -1,4 +1,4 @@
-#include "base/immutable/map.h"
+#include "foundation/immutable/map.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <utility>
 
-using namespace immutable;
+using namespace foundation;
 using namespace testing;
 
 template <typename T>

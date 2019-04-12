@@ -2,17 +2,17 @@
 
 #include "computegraph.h"
 
-#include "platform/knob.h"
-#include "platform/node.h"
-#include "platform/nodestoragetypes.h"
+#include "core/knob.h"
+#include "core/node.h"
+#include "core/nodestoragetypes.h"
 
-#include "base/immutable/map.h"
+#include "foundation/immutable/map.h"
 
 #include <stack>
 #include <utility>
 #include <variant>
 
-using namespace platform;
+using namespace core;
 
 namespace computeengine
 {
@@ -41,8 +41,8 @@ std::stack<NodeId> retrieve_observable_nodes(const NodeStorageState& state)
 } // namespace
 
 
-ComputeEngine::ComputeEngine(const platform::EnableDispatch& enable_dispatch)
-    : platform::EnableDispatch(enable_dispatch)
+ComputeEngine::ComputeEngine(const core::EnableDispatch& enable_dispatch)
+    : core::EnableDispatch(enable_dispatch)
 {}
 
 void ComputeEngine::on_update() const

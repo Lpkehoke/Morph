@@ -1,10 +1,10 @@
-from python.platform import PlatformCore, NodeFactory, KnobsInfo, Node
+from python.core import Core, NodeFactory, KnobsInfo, Node
 from python.ui import UiManager
 
 
 class DummyNode(Node):
     def __init__(self, input_knobs, output_knobs):
-        super().__init(input_knobs, output_knobs)
+        super().__init__(input_knobs, output_knobs)
 
     def compute(self):
         pass
@@ -15,9 +15,11 @@ class DummyNodeFactory(NodeFactory):
         super().__init__()
         self._model_name = 'Dummy'
         self._knobs_info = KnobsInfo()
+        self._knobs_info.set_input_knob_schema('Input', 'IntegerKnob')
+        self._knobs_info.set_output_knob_schema('Output', 'FloatKnob')
 
     def create(self, input_knobs, output_knobs):
-        return None
+        return DummyNode(input_knobs, output_knobs)
 
     def model(self):
         return self._model_name
@@ -27,7 +29,7 @@ class DummyNodeFactory(NodeFactory):
 
 
 def start():
-    platform_core = PlatformCore()
+    platform_core = Core()
 
     dummy_factory = DummyNodeFactory()
 

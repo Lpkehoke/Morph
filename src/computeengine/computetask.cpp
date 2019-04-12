@@ -1,15 +1,15 @@
 #include "computetask.h"
 
-#include "platform/knob.h"
-#include "platform/node.h"
+#include "core/knob.h"
+#include "core/node.h"
 
-#include "base/immutable/map.h"
+#include "foundation/immutable/map.h"
 
 #include "tbb/task.h"
 
 #include <utility>
 
-using namespace platform;
+using namespace core;
 
 
 namespace computeengine

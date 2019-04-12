@@ -1,14 +1,14 @@
 #pragma once
 
-#include "platform/nodestoragetypes.h"
+#include "core/nodestoragetypes.h"
 
-#include "base/immutable/map.h"
+#include "foundation/immutable/map.h"
 
 namespace computeengine { class ComputeTask; }
 
 namespace computeengine
 {
 
-using DepsGraph = immutable::Map<platform::NodeId, ComputeTask*>;
+using DepsGraph = foundation::Map<core::NodeId, ComputeTask*>;
 
 } // namespace computeengine
