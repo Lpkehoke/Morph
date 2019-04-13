@@ -62,11 +62,7 @@ class MetadataTableModel(BaseTableModel):
     def on_state(self, state):
         self.rows = []
         for node_id, metadata in state.node_metadata:
-            metadata_dict = {}
-            for key, value in metadata:
-                metadata_dict[key] = value
-
-            self.rows.append((node_id, metadata_dict))
+            self.rows.append((node_id, metadata))
 
 
 class KnobTableModel(BaseTableModel):

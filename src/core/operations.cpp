@@ -56,7 +56,7 @@ NodeStorageState make_node(
     const Dict node_info = node_factory->node_info();
     Dict node_params;
 
-    for (const auto& pair : node_info.get_as<Dict>("input_knobs_schema"))
+    for (const auto& pair : node_info.get_as<Dict>("input_knob_schema"))
     {
         const auto knob_id = next_state.m_next_knob_id;
 
@@ -68,7 +68,7 @@ NodeStorageState make_node(
         node_params.get_as<Dict>("input_knobs")[pair.first] = knob_id;
     }
 
-    for (const auto& pair : node_info.get_as<Dict>("output_knobs_schema"))
+    for (const auto& pair : node_info.get_as<Dict>("output_knob_schema"))
     {
         const auto knob_id = next_state.m_next_knob_id;
 

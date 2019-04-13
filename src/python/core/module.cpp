@@ -5,6 +5,7 @@
 
 PYBIND11_MODULE(_core, m)
 {
+    bind_dict(m);
     bind_logger(m);
     bind_node(m);
     bind_node_factory(m);

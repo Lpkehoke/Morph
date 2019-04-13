@@ -1,4 +1,5 @@
 bindcore_src = [
+    'core/binddict.cpp',
     'core/bindlogger.cpp',
     'core/bindnode.cpp',
     'core/bindnodefactory.cpp',

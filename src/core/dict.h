@@ -3,6 +3,7 @@
 #include "foundation/immutable/map.h"
 
 #include <cstdint>
+#include <iostream>
 #include <string>
 #include <variant>
 
@@ -32,10 +33,13 @@ class Dict
     bool contains(const std::string& key) const;
     bool operator==(const Dict& other) const;
 
+    std::string to_string() const;
+
   private:
     foundation::Map<std::string, Value> m_data;
 };
 
+std::ostream& operator<<(std::ostream &os, const Dict &dict);
 
 //
 //  Dict implementation.
@@ -61,7 +65,7 @@ T& Dict::get_as(const std::string& key)
 {
     if (!m_data.contains(key))
     {
-        m_data.mutable_set(key, std::monostate {});
+        m_data.mutable_set(key, T());
     }
 
     Value& value = m_data.mutable_get(key);

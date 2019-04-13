@@ -1,9 +1,9 @@
-from python.core import Core, NodeFactory, KnobsInfo, Node
+from python.core import Core, NodeFactory, Dict, Node
 from python.ui import UiManager
 
 
 class DummyNode(Node):
-    def __init__(self, input_knobs, output_knobs):
+    def __init__(self, params):
         super().__init__(input_knobs, output_knobs)
 
     def compute(self):
@@ -13,19 +13,24 @@ class DummyNode(Node):
 class DummyNodeFactory(NodeFactory):
     def __init__(self):
         super().__init__()
-        self._model_name = 'Dummy'
-        self._knobs_info = KnobsInfo()
-        self._knobs_info.set_input_knob_schema('Input', 'IntegerKnob')
-        self._knobs_info.set_output_knob_schema('Output', 'FloatKnob')
+        self._node_info = Dict(
+            {
+                'model': 'Dummy',
+                'input_knob_schema':
+                    {
+                        'Input': 'IntegerKnob'
+                    },
+                'output_knob_schema':
+                    {
+                        'Output': 'FloatKnob'
+                    }
+            })
 
-    def create(self, input_knobs, output_knobs):
-        return DummyNode(input_knobs, output_knobs)
+    def create(self, params):
+        return None
 
-    def model(self):
-        return self._model_name
-
-    def knobs_info(self):
-        return self._knobs_info
+    def node_info(self):
+        return self._node_info
 
 
 def start():
