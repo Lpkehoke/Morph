@@ -17,24 +17,21 @@ using namespace core;
 //  PyNodeFacory implementation.
 //
 
-NodePtr PyNodeFactory::create(
-    core::Node::KnobMap input_knobs,
-    core::Node::KnobMap output_knobs) const
+NodePtr PyNodeFactory::create(const Dict& params) const
 {
     PYBIND11_OVERLOAD_PURE(
         NodePtr,
         NodeFactory,
         create,
-        input_knobs,
-        output_knobs);
+        params);
 }
 
-Dict PyNodeFactory::params() const
+Dict PyNodeFactory::node_info() const
 {
     PYBIND11_OVERLOAD_PURE(
         Dict,
         NodeFactory,
-        params);
+        node_info);
 }
 
 void bind_node_factory(py::handle scope)
@@ -42,5 +39,5 @@ void bind_node_factory(py::handle scope)
     py::class_<NodeFactory, PyNodeFactory, NodeFactoryPtr>(scope, "NodeFactory")
         .def(py::init<>())
         .def("create", &NodeFactory::create)
-        .def("params", &NodeFactory::params);
+        .def("node_info", &NodeFactory::node_info);
 }

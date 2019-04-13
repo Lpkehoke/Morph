@@ -6,9 +6,6 @@
 class PyNodeFactory : public core::NodeFactory
 {
   public:
-    virtual core::NodePtr create(
-        core::Node::KnobMap input_knobs,
-        core::Node::KnobMap output_knobs) const override;
-    
-    virtual core::Dict params() const override;
+    virtual core::NodePtr create(const core::Dict& params) const override;
+    virtual core::Dict node_info() const override;
 };

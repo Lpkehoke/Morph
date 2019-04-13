@@ -11,6 +11,7 @@
 #include <map>
 #include <memory>
 #include <utility>
+#include <variant>
 
 namespace core
 {
@@ -52,12 +53,10 @@ NodeStorageState make_node(
 
     const auto node_id = next_state.m_next_node_id++;
 
-    const Dict params = node_factory->params();
+    const Dict node_info = node_factory->node_info();
+    Dict node_params;
 
-    Node::KnobMap input_knobs;
-    Node::KnobMap output_knobs;
-
-    for (const auto& pair : std::get<Dict>(params["input_knobs_schema"]))
+    for (const auto& pair : node_info.get_as<Dict>("input_knobs_schema"))
     {
         const auto knob_id = next_state.m_next_knob_id;
 
@@ -66,10 +65,10 @@ NodeStorageState make_node(
 
         next_state = make_knob(std::move(next_state), node_id, knob_schema);
 
-        input_knobs.mutable_set(pair.first, knob_id);
+        node_params.get_as<Dict>("input_knobs")[pair.first] = knob_id;
     }
 
-    for (const auto& pair : std::get<Dict>(params["output_knobs_schema"]))
+    for (const auto& pair : node_info.get_as<Dict>("output_knobs_schema"))
     {
         const auto knob_id = next_state.m_next_knob_id;
 
@@ -77,10 +76,10 @@ NodeStorageState make_node(
         const auto& knob_schema = plugin_manager.get_knob_schema(knob_schema_name);
         next_state = make_knob(std::move(next_state), node_id, knob_schema);
 
-        output_knobs.mutable_set(pair.first, knob_id);
+        node_params.get_as<Dict>("output_knobs")[pair.first] = knob_id;
     }
 
-    auto node = node_factory->create(std::move(input_knobs), std::move(output_knobs));
+    auto node = node_factory->create(std::move(node_params));
     next_state.m_nodes.mutable_set(node_id, std::move(node));
 
     return next_state;

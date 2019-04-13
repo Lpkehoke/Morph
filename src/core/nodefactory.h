@@ -10,11 +10,8 @@ namespace core
 class NodeFactory
 {
   public:
-    virtual NodePtr create(
-        Node::KnobMap input_knobs,
-        Node::KnobMap output_knobs) const = 0;
-    
-    virtual Dict params() const = 0;
+    virtual NodePtr create(const Dict& params) const = 0;
+    virtual Dict node_info() const = 0;
 
     virtual ~NodeFactory() = default;
 };

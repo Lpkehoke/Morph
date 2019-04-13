@@ -23,7 +23,7 @@ class NodeFactoryRegistry : public Registry<NodeFactoryPtr>
       : Registry<NodeFactoryPtr>(
           [](const NodeFactoryPtr& entity)
           {
-              return std::get<std::string>(entity->params()["model"]);
+              return entity->node_info().get_as<std::string>("model");
           }
       )
     {}
