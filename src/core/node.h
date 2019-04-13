@@ -1,12 +1,13 @@
 #pragma once
 
-#include "nodestoragetypes.h"
+#include "core/nodestoragetypes.h"
 
 #include "foundation/immutable/map.h"
 
 #include <string>
 
 namespace core { class Attribute; }
+namespace core { class Dict; }
 
 namespace core
 {
@@ -16,7 +17,7 @@ class Node
   public:
     using KnobMap = foundation::Map<std::string, KnobId>;
 
-    Node(KnobMap input_knos, KnobMap output_knobs);
+    Node(const Dict& params);
 
     virtual void compute() const = 0;
 

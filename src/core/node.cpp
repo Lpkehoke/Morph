@@ -1,19 +1,30 @@
-#include "node.h"
-#include "knob.h"
+#include "core/node.h"
+
+#include "core/dict.h"
+#include "core/knob.h"
 
 #include <stdexcept>
 #include <utility>
+#include <variant>
 
 namespace core { class Attribute; }
 
 namespace core
 {
 
-Node::Node(KnobMap input_knobs, KnobMap output_knobs)
+Node::Node(const Dict& params)
     : m_state(nullptr)
-    , m_input_knobs(std::move(input_knobs))
-    , m_output_knobs(std::move(output_knobs))
-{}
+{
+    for (const auto& pair : params.get_as<Dict>("input_knobs"))
+    {
+        m_input_knobs.mutable_set(pair.first, std::get<KnobId>(pair.second));
+    }
+
+    for (const auto& pair : params.get_as<Dict>("output_knobs"))
+    {
+        m_output_knobs.mutable_set(pair.first, std::get<KnobId>(pair.second));
+    }
+}
 
 void Node::compute() const
 {}

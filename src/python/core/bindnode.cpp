@@ -3,6 +3,7 @@
 
 #include "python/foundation/pymap.h"
 
+#include "core/dict.h"
 #include "core/node.h"
 #include "core/nodestoragetypes.h"
 
@@ -30,6 +31,6 @@ void bind_node(py::handle scope)
     PyMap<Node::KnobMap>(scope, "KnobMap");
 
     py::class_<Node, PyNode, NodePtr>(scope, "Node")
-        .def(py::init<Node::KnobMap, Node::KnobMap>())
+        .def(py::init<Dict>())
         .def("compute", &Node::compute);
 }

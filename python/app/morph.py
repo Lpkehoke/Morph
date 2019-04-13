@@ -4,7 +4,7 @@ from python.ui import UiManager
 
 class DummyNode(Node):
     def __init__(self, params):
-        super().__init__(input_knobs, output_knobs)
+        super().__init__(params)
 
     def compute(self):
         pass
@@ -27,7 +27,7 @@ class DummyNodeFactory(NodeFactory):
             })
 
     def create(self, params):
-        return None
+        return DummyNode(params)
 
     def node_info(self):
         return self._node_info
