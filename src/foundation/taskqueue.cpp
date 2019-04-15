@@ -48,8 +48,9 @@ tbb::task* TaskWrapper::execute()
 
 struct TaskQueue::Impl
 {
-    Impl()
+    Impl(tbb::priority_t priority)
         : m_is_busy(false)
+        , m_priority(priority)
     {}
 
     void enqueue_task(Task&& task);
@@ -59,6 +60,7 @@ struct TaskQueue::Impl
     tbb::task_group_context     m_ctx;
     tbb::spin_mutex             m_mutex;
     bool                        m_is_busy;
+    tbb::priority_t             m_priority;
 };
 
 void TaskQueue::Impl::enqueue_task(Task&& task)
@@ -66,7 +68,7 @@ void TaskQueue::Impl::enqueue_task(Task&& task)
     TaskWrapper* w = new (tbb::task::allocate_root(m_ctx))
             TaskWrapper(std::move(task), [=]() { return on_task_end(); });
 
-    tbb::task::enqueue(*w);
+    tbb::task::enqueue(*w, m_priority);
 }
 
 void TaskQueue::Impl::on_task_end()
@@ -89,9 +91,30 @@ void TaskQueue::Impl::on_task_end()
     }
 }
 
-TaskQueue::TaskQueue()
-    : impl(new Impl())
-{}
+TaskQueue::TaskQueue(Priority priority)
+{
+    tbb::priority_t tbb_priority(tbb::priority_normal);
+
+    switch (priority)
+    {
+        case Priority::Low:
+            tbb_priority = tbb::priority_low;
+            break;
+        
+        case Priority::Normal:
+            tbb_priority = tbb::priority_normal;
+            break;
+        
+        case Priority::High:
+            tbb_priority = tbb::priority_high;
+            break;
+    
+        default:
+            break;
+    }
+
+    impl = new Impl(tbb_priority);
+}
 
 TaskQueue::~TaskQueue()
 {

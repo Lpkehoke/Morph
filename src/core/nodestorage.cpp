@@ -21,10 +21,14 @@
 #include <variant>
 #include <vector>
 
-namespace
+using namespace foundation;
+
+
+namespace core
 {
 
-using namespace core;
+namespace
+{
 
 class Reducer
 {
@@ -119,9 +123,6 @@ class Reducer
 
 } // namespace
 
-namespace core
-{
-
 struct NodeStorage::Impl
 {
     Impl(
@@ -129,12 +130,13 @@ struct NodeStorage::Impl
         LoggerPtr           logger)
         : m_reducer(std::move(plugin_manager), logger)
         , m_logger(std::move(logger))
+        , m_action_queue(TaskQueue::Priority::High)
     {}
 
     NodeStorageState        m_state;
     Reducer                 m_reducer;
     LoggerPtr               m_logger;
-    foundation::TaskQueue         m_action_queue;
+    TaskQueue               m_action_queue;
     tbb::spin_mutex         m_mutex_dispatch;
 };
 

@@ -8,14 +8,20 @@
 #include <string>
 #include <utility>
 
+using namespace foundation;
+
 namespace core
 {
 
 struct Logger::Impl
 {
-    State                   m_state;
-    foundation::TaskQueue   m_action_queue;
-    tbb::spin_mutex         m_state_mutex;
+    Impl()
+      : m_action_queue(TaskQueue::Priority::Low)
+    {}
+
+    State           m_state;
+    TaskQueue       m_action_queue;
+    tbb::spin_mutex m_state_mutex;
 };
 
 Logger::Logger()
