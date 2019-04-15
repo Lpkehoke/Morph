@@ -45,7 +45,8 @@ NodeStorageState make_knob(
 NodeStorageState make_node(
     NodeStorageState        state,
     const PluginManager&    plugin_manager,
-    const std::string&      node_model)
+    const std::string&      node_model,
+    Dict                    node_metadata)
 {
     auto next_state = std::move(state);
 
@@ -81,6 +82,62 @@ NodeStorageState make_node(
 
     auto node = node_factory->create(std::move(node_params));
     next_state.m_nodes.mutable_set(node_id, std::move(node));
+    next_state.m_node_metadata.mutable_set(node_id, std::move(node_metadata));
+
+    return next_state;
+}
+
+NodeStorageState remove_knob(
+    NodeStorageState        state,
+    KnobId                  knob_id)
+{
+    auto& knob = state.m_knobs[knob_id];
+
+    for (auto& attr_pair : *knob)
+    {
+        auto attr_id = attr_pair.second;
+        state.m_attributes.mutable_erase(attr_id);
+    }
+
+    state.m_knobs.mutable_erase(knob_id);
+
+    return state;
+}
+
+NodeStorageState remove_node(
+    NodeStorageState        state,
+    NodeId                  node_id)
+{
+    auto next_state = std::move(state);
+    auto& node = next_state.m_nodes[node_id];
+
+    for (auto& knob_pair : node->input_knobs())
+    {     
+        next_state = remove_knob(std::move(next_state), knob_pair.second);
+    }
+
+    for (auto& knob_pair : node->output_knobs())
+    {
+        for (auto& pair : next_state.m_knobs)
+        {
+            auto& knob = pair.second;
+            
+            if (!knob->is_reference())
+            {
+                continue;
+            }
+
+            if (knob->referenced_node() == node_id)
+            {
+                next_state.m_knobs.mutable_set(pair.first, knob->disconnect());
+            }
+        }
+        
+        next_state = remove_knob(std::move(next_state), knob_pair.second);
+    }
+
+    next_state.m_nodes.mutable_erase(node_id);
+    next_state.m_node_metadata.mutable_erase(node_id);
 
     return next_state;
 }

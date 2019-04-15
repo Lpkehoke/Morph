@@ -47,19 +47,20 @@ class Reducer
     }
 
     NodeStorageState reduce(NodeStorageState&& state, CreateNode&& action)
-    {      
-        auto node_id = state.m_next_node_id;
-        auto next_state = make_node(std::move(state), *m_plugin_manager, action.model);
-
-        next_state.m_node_metadata.mutable_set(node_id, std::move(action.metadata));
+    {
+        auto next_state = make_node(
+            std::move(state),
+            *m_plugin_manager,
+            action.model,
+            std::move(action.metadata));
 
         return next_state;
     }
 
     NodeStorageState reduce(NodeStorageState&& state, RemoveNode&& action)
     {
-        // TODO.
-        return state;
+        auto next_state = remove_node(std::move(state), action.id);
+        return next_state;
     }
 
     NodeStorageState reduce(NodeStorageState&& state, UpdateNodeMetadata&& action)
