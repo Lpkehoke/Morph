@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 
+namespace core { class Dict; }
 namespace core { class NodeFactory; }
 namespace core { class KnobSchema; }
 namespace core { class ValueType; }
@@ -27,6 +28,8 @@ class PluginManager
     const NodeFactoryPtr& get_node_factory(const std::string& node_model) const;
     const KnobSchema& get_knob_schema(const std::string& schema_name) const;
     const ValueType& get_value_type(const std::string& value_type_name) const;
+
+    Dict get_registered_nodes() const;
 
     template <typename T>
     Value make_value(const std::string& value_type_name, T value) const;

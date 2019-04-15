@@ -16,6 +16,7 @@ class DummyNodeFactory(NodeFactory):
         self._node_info = Dict(
             {
                 'model': 'Dummy',
+                'description': 'Dummy node',
                 'input_knob_schema':
                     {
                         'Input': 'IntegerKnob'

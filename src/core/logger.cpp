@@ -16,11 +16,11 @@ namespace core
 struct Logger::Impl
 {
     Impl()
-      : m_action_queue(TaskQueue::Priority::Low)
+      : m_task_queue(TaskQueue::Priority::Low)
     {}
 
     State           m_state;
-    TaskQueue       m_action_queue;
+    TaskQueue       m_task_queue;
     tbb::spin_mutex m_state_mutex;
 };
 
@@ -64,7 +64,7 @@ Logger::State Logger::state() const
 
 void Logger::post_record_to_queue(LogRecord&& lr)
 {
-    impl->m_action_queue.post([=]()
+    impl->m_task_queue.post([=]()
     {
         tbb::spin_mutex::scoped_lock lock(impl->m_state_mutex);
         impl->m_state.emplace_back(std::move(lr));
@@ -72,7 +72,6 @@ void Logger::post_record_to_queue(LogRecord&& lr)
         lock.release();
         notify();
     });
-
 }
 
 } // namespace core

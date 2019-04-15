@@ -14,12 +14,16 @@ class Registry
 {
   public:
     using EntityMap = std::map<std::string, Entity>;
+    using ConstIterator = typename EntityMap::const_iterator;
     using GetEntityName = std::function<std::string (const Entity&)>;
     
     Registry(GetEntityName get_entity_name);
 
     void register_entity(Entity entity);
     const Entity& get(const std::string& name) const;
+
+    ConstIterator begin() const;
+    ConstIterator end() const;
   
   private:
     GetEntityName   m_get_entity_name;
@@ -60,6 +64,18 @@ const Entity& Registry<Entity>::get(const std::string& name) const
     }
 
     return itr->second;
+}
+
+template <typename Entity>
+typename Registry<Entity>::ConstIterator Registry<Entity>::begin() const
+{
+    return m_entity_map.begin();
+}
+
+template <typename Entity>
+typename Registry<Entity>::ConstIterator Registry<Entity>::end() const
+{
+    return m_entity_map.end();
 }
 
 } // namespace foundation

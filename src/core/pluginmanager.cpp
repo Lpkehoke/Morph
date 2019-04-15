@@ -1,5 +1,6 @@
 #include "core/pluginmanager.h"
 
+#include "core/dict.h"
 #include "core/knobschema.h"
 #include "core/nodefactory.h"
 #include "core/valuetype.h"
@@ -99,6 +100,18 @@ const KnobSchema& PluginManager::get_knob_schema(const std::string& schema_name)
 const ValueType& PluginManager::get_value_type(const std::string& value_type_name) const
 {
     return impl->value_type_registry.get(value_type_name);
+}
+
+Dict PluginManager::get_registered_nodes() const
+{
+    Dict result;
+    
+    for (const auto& pair : impl->node_factory_registry)
+    {
+        result[pair.first] = pair.second->node_info();
+    }
+
+    return result;
 }
 
 } // namespace core

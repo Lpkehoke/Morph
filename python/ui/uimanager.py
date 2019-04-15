@@ -7,6 +7,7 @@ from .removenodedialog import RemoveNodeDialog
 from .stateviewer import StateViewer
 from .outputviewer import OutputViewer
 from .window import Window
+from .grapheditor import GraphEditor
 
 
 class UiManager(QObject):
@@ -25,6 +26,10 @@ class UiManager(QObject):
         self.create_node_dialog = CreateNodeDialog(lambda model, metadata: self.create_node(model, metadata),
                                                    self.window)
         self.remove_node_dialog = RemoveNodeDialog(lambda node_id: self.remove_node(node_id), self.window)
+
+        self.graph_editor = GraphEditor(lambda: self.state)
+        self.graph_editor.show()
+        self.widgets.append(self.graph_editor)
 
         self.create_node_dialog.hide()
         self.remove_node_dialog.hide()
@@ -78,4 +83,7 @@ class UiManager(QObject):
     @Slot()
     def _on_update(self):
         for w in self.widgets:
-            w.on_state(self.state)
+            if hasattr(w, 'on_state'):
+                w.on_state(self.state)
+            else:
+                w.update()

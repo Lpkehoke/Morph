@@ -17,5 +17,6 @@ void bind_plugin_manager(py::handle scope)
 {
     py::class_<PluginManager, PluginManagerPtr>(scope, "PluginManager")
         .def(py::init<>())
-        .def("register_node_factory", &PluginManager::register_node_factory);
+        .def("register_node_factory", &PluginManager::register_node_factory)
+        .def("get_registered_nodes", &PluginManager::get_registered_nodes);
 }
