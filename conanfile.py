@@ -10,10 +10,18 @@ class Morph(ConanFile):
     requires = (
         'TBB/2019_U4@conan/stable',
         'gtest/1.8.1@bincrafters/stable',
-        'pybind11/2.2.4@conan/stable'
+        'pybind11/2.2.4@conan/stable',
+        'glad/0.1.29@bincrafters/stable'
     )
 
     generators = {}
+
+    def configure(self):
+        self.options['glad'].profile = 'core'
+        self.options['glad'].api_type = 'gl'
+        self.options['glad'].api_version = '4.1'
+        self.options['glad'].spec = 'gl'
+        self.options['glad'].no_loader = False
 
     def create_meson_subprojects(self):
         subprojects_path = os.path.join(
