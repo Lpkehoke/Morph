@@ -1,4 +1,5 @@
 from conans import ConanFile, Meson, tools
+from scripts import generate_subproject
 
 import os
 
@@ -14,38 +15,6 @@ class Morph(ConanFile):
 
     generators = {}
 
-    def configure(self):
-        self.options['TBB'].shared = True
-
-    def generate_meson_subproject(self, subdirs_path, name, libs, lib_dirs, include_dirs):
-        project_dir = os.path.join(subdirs_path, name)
-        project_file = os.path.join(project_dir, 'meson.build')
-
-        if not os.path.exists(project_dir):
-            os.mkdir(project_dir)
-        
-        with open(project_file, 'w') as project:
-            print(f"project('{name}', 'cpp')", file=project)
-            print("cpp = meson.get_compiler('cpp')", file=project)
-
-            declared_lib_names = []
-            for lib in libs:
-                if (lib == 'pthreads'):
-                    print(f"{lib} = dependency('threads')")
-                else:
-                    print(f"{lib} = cpp.find_library('{lib}', dirs: {str(lib_dirs)}, required: false)", file=project)
-                    print(f"if not {lib}.found()", file=project)
-                    print(f"{lib} = cpp.find_library('{lib}', required: true)", file=project)
-                    print("endif", file=project)
-                declared_lib_names.append(lib)
-
-            print(f"include_dirs = include_directories({str(include_dirs)})", file=project)
-            
-            print(f"{name.lower()}_dep = declare_dependency(", file=project)
-            deps_list = ', '.join(declared_lib_names)
-            print(f"dependencies: [{deps_list}],", file=project)
-            print(f"include_directories: include_dirs)", file=project)
-
     def create_meson_subprojects(self):
         subprojects_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -56,16 +25,20 @@ class Morph(ConanFile):
         
         deps = self.deps_cpp_info.deps
 
-        for dependency in deps:
-            libs = self.deps_cpp_info[dependency].libs
-            lib_dirs = self.deps_cpp_info[dependency].lib_paths
-            include_dirs = self.deps_cpp_info[dependency].include_paths
-            self.generate_meson_subproject(
-                subprojects_path,
-                dependency,
-                libs,
-                lib_dirs,
-                include_dirs)
+        for dependency_name in deps:
+            lib_names = self.deps_cpp_info[dependency_name].libs
+            lib_dirs = self.deps_cpp_info[dependency_name].lib_paths
+            include_dirs = self.deps_cpp_info[dependency_name].include_paths
+
+            project_dir = os.path.join(subprojects_path, dependency_name)
+            project_file = os.path.join(project_dir, 'meson.build')
+
+            if not os.path.exists(project_dir):
+                os.mkdir(project_dir)
+
+            with open(project_file, 'w', newline='') as project:
+                payload = generate_subproject(dependency_name, lib_names, lib_dirs, include_dirs)
+                project.writelines(payload)
 
     def build(self):
         self.create_meson_subprojects()
