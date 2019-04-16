@@ -12,11 +12,15 @@ def generate_subproject(
     env = jinja2.Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
     template = env.get_template('meson.build.template')
 
+    has_threads_dependency = 'pthread' in lib_names
+    lib_names = list(filter(lambda elem: elem != 'pthread', lib_names))
+
     context = {
         'conan_dependency_name': dependency_name,
         'lib_names': lib_names,
         'lib_dirs': lib_dirs,
-        'include_dirs': include_dirs
+        'include_dirs': include_dirs,
+        'has_threads_dependency': has_threads_dependency
     }
 
     return template.render(context)
