@@ -1,8 +1,8 @@
-from PySide2.QtCore import QAbstractTableModel, QModelIndex, Qt, Slot
+from PySide2.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PySide2.QtWidgets import QWidget, QTableView, QHeaderView, QGridLayout
 from PySide2.QtGui import QColor
 
-from python.core import NodeStorageState
+from python.morph.core import NodeStorageState
 
 
 class BaseTableModel(QAbstractTableModel):

@@ -1,7 +1,7 @@
 from PySide2.QtCore import Qt, Slot, Signal
 from PySide2.QtWidgets import QWidget, QTextEdit, QHBoxLayout
 
-from python.core import Logger
+from python.morph.core import Logger
 
 
 class OutputViewer(QWidget):

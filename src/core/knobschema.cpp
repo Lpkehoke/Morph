@@ -1,5 +1,5 @@
 #include "core/knobschema.h"
-#include "core/value.h"
+#include "core/value/value.h"
 
 #include <algorithm>
 #include <stdexcept>

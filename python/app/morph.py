@@ -1,4 +1,6 @@
-from python.core import Core, NodeFactory, Dict, Node
+import time
+
+from python.morph.core import Core, NodeFactory, Dict, Node
 from python.ui import UiManager
 
 
@@ -23,7 +25,8 @@ class DummyNodeFactory(NodeFactory):
                     },
                 'output_knob_schema':
                     {
-                        'Output': 'FloatKnob'
+                        'Output': 'FloatKnob',
+                        'AnotherOutput': 'IntegerKnob'
                     }
             })
 
@@ -35,13 +38,39 @@ class DummyNodeFactory(NodeFactory):
 
 
 def start():
-    platform_core = Core()
+    core = Core()
 
     dummy_factory = DummyNodeFactory()
 
-    platform_core.plugin_manager().register_node_factory(dummy_factory)
+    core.plugin_manager().register_node_factory(dummy_factory)
 
-    ui_manager = UiManager(platform_core.node_storage(), platform_core.logger())
+    core.node_storage().dispatch({
+        'type': 'CreateNode',
+        'model': 'Dummy',
+        'metadata': {
+            'name': 'DummyNode0'
+        }
+    })
+
+    core.node_storage().dispatch({
+        'type': 'CreateNode',
+        'model': 'Dummy',
+        'metadata': {
+            'name': 'DummyNode1'
+        }
+    })
+
+    core.node_storage().dispatch({
+        'type': 'CreateNode',
+        'model': 'Dummy',
+        'metadata': {
+            'name': 'DummyNode2'
+        }
+    })
+
+    time.sleep(0.01)
+
+    ui_manager = UiManager(core.node_storage(), core.logger())
 
     ui_manager.start()
 

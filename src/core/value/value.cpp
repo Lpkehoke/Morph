@@ -28,6 +28,20 @@ Value::Value(Value&& other)
     std::swap(m_held, other.m_held);
 }
 
+Value& Value::operator=(const Value& other)
+{
+    delete m_held;
+    m_held = other.m_held->clone();
+    return *this;
+}
+
+Value& Value::operator=(Value&& other)
+{
+    delete m_held;
+    m_held = std::exchange(other.m_held, nullptr);
+    return *this;
+}
+
 Value::~Value()
 {
     delete m_held;
@@ -41,6 +55,21 @@ const ValueType& Value::value_type() const
     }
 
     return m_held->value_type();
+}
+
+bool Value::operator==(const Value& other) const
+{
+    if (!m_held)
+    {
+        return !other.m_held;
+    }
+
+    if (!other.m_held)
+    {
+        return false;
+    }
+
+    return *m_held == *other.m_held;
 }
 
 } // namespace core

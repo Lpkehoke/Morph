@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/value.h"
+#include "core/value/value.h"
 
 namespace core
 {

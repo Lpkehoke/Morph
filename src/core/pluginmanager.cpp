@@ -3,7 +3,7 @@
 #include "core/dict.h"
 #include "core/knobschema.h"
 #include "core/nodefactory.h"
-#include "core/valuetype.h"
+#include "core/value/defaultvalues.h"
 
 #include "foundation/registry.h"
 
@@ -24,7 +24,7 @@ class NodeFactoryRegistry : public Registry<NodeFactoryPtr>
       : Registry<NodeFactoryPtr>(
           [](const NodeFactoryPtr& entity)
           {
-              return entity->node_info().get_as<std::string>("model");
+              return entity->node_info()["model"].cast<std::string>();
           }
       )
     {}
@@ -42,25 +42,12 @@ class KnobSchemaRegistry : public Registry<KnobSchema>
     {}
 };
 
-class ValueTypeRegistry : public Registry<ValueType>
-{
-  public:
-    ValueTypeRegistry()
-      : Registry<ValueType>(
-          [](const ValueType& entity)
-          {
-              return entity.name();
-          })
-    {}
-};
-
 } // namespace 
 
 struct PluginManager::Impl
 {
     NodeFactoryRegistry node_factory_registry;
     KnobSchemaRegistry  knob_schema_registry;
-    ValueTypeRegistry   value_type_registry;
 };
 
 PluginManager::PluginManager()
@@ -82,11 +69,6 @@ void PluginManager::register_knob_schema(KnobSchema knob_schema)
     impl->knob_schema_registry.register_entity(std::move(knob_schema));
 }
 
-void PluginManager::register_value_type(ValueType value_type)
-{
-    impl->value_type_registry.register_entity(std::move(value_type));
-}
-
 const NodeFactoryPtr& PluginManager::get_node_factory(const std::string& node_model) const
 {
     return impl->node_factory_registry.get(node_model);
@@ -95,11 +77,6 @@ const NodeFactoryPtr& PluginManager::get_node_factory(const std::string& node_mo
 const KnobSchema& PluginManager::get_knob_schema(const std::string& schema_name) const
 {
     return impl->knob_schema_registry.get(schema_name);
-}
-
-const ValueType& PluginManager::get_value_type(const std::string& value_type_name) const
-{
-    return impl->value_type_registry.get(value_type_name);
 }
 
 Dict PluginManager::get_registered_nodes() const

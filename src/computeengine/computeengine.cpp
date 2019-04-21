@@ -28,7 +28,7 @@ std::stack<NodeId> retrieve_observable_nodes(const NodeStorageState& state)
         const auto& metadata = metadata_pair.second;
 
         if (metadata.contains("compute_engine_observable")
-            && std::get<bool>(metadata["compute_engine_observable"]))
+            && metadata["compute_engine_observable"].cast<bool>())
         {
             result.push(metadata_pair.first);
         }

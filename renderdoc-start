@@ -1,0 +1,31 @@
+{
+    "rdocCaptureSettings": 1,
+    "settings": {
+        "autoStart": false,
+        "commandLine": "/home/fedor/Projects/morph/python/app/morph.py",
+        "environment": [
+            {
+                "separator": "Platform style",
+                "type": "Set",
+                "value": "/home/fedor/Projects/morph:/home/fedor/Projects/morph/bin",
+                "variable": "PYTHONPATH"
+            }
+        ],
+        "executable": "/usr/bin/python3",
+        "inject": false,
+        "options": {
+            "allowFullscreen": true,
+            "allowVSync": true,
+            "apiValidation": true,
+            "captureAllCmdLists": false,
+            "captureCallstacks": false,
+            "captureCallstacksOnlyDraws": false,
+            "debugOutputMute": true,
+            "delayForDebugger": 0,
+            "hookIntoChildren": false,
+            "refAllResources": false,
+            "verifyBufferAccess": true
+        },
+        "workingDir": "/home/fedor/Projects/morph"
+    }
+}

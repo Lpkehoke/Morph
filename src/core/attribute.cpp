@@ -1,5 +1,5 @@
 #include "core/attribute.h"
-#include "core/value.h"
+#include "core/value/value.h"
 
 #include <utility>
 

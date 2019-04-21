@@ -10,8 +10,9 @@ core_src = [
     'operations.cpp',
     'core.cpp',
     'pluginmanager.cpp',
-    'value.cpp',
-    'valuetype.cpp'
+    'value/defaultvalues.cpp',
+    'value/value.cpp',
+    'value/valuetype.cpp'
 ]
 
 core = static_library(

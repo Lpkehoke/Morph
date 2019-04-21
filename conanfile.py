@@ -11,7 +11,9 @@ class Morph(ConanFile):
         'TBB/2019_U4@conan/stable',
         'gtest/1.8.1@bincrafters/stable',
         'pybind11/2.2.4@conan/stable',
-        'glad/0.1.29@bincrafters/stable'
+        'glad/0.1.29@bincrafters/stable',
+        'eigen/3.3.7@conan/stable',
+        'sdl2/2.0.9@bincrafters/stable'
     )
 
     generators = {}
@@ -22,6 +24,7 @@ class Morph(ConanFile):
         self.options['glad'].api_version = '4.1'
         self.options['glad'].spec = 'gl'
         self.options['glad'].no_loader = False
+        self.options['glad'].shared = True
 
     def create_meson_subprojects(self):
         subprojects_path = os.path.join(

@@ -1,7 +1,7 @@
 from PySide2.QtCore import QObject, Signal, Slot, Qt
 from PySide2.QtWidgets import QApplication
 
-from python.core import NodeStorage, Logger, Severity
+from python.morph.core import NodeStorage, Logger
 from .createnodedialog import CreateNodeDialog
 from .removenodedialog import RemoveNodeDialog
 from .stateviewer import StateViewer

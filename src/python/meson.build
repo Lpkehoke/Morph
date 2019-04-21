@@ -10,10 +10,6 @@ bindcore_src = [
     'core/pythondictconversion.cpp'
 ]
 
-bindcomputeengine_src = [
-    'computeengine/module.cpp'
-]
-
 bindcore = shared_library(
     '_core',
     bindcore_src,
@@ -24,6 +20,42 @@ bindcore = shared_library(
         python_dep],
     name_prefix: ''
 )
+
+bindgl_src = [
+    'gl/module.cpp'
+]
+
+bindgl = shared_library(
+    '_gl',
+    bindgl_src,
+    include_directories: root_include_dir,
+    dependencies: [
+        gl_dep,
+        pybind_dep,
+        python_dep
+    ],
+    name_prefix: ''
+)
+
+bindui_src = [
+    'ui/module.cpp'
+]
+
+bindui = shared_library(
+    '_ui',
+    bindui_src,
+    include_directories: root_include_dir,
+    dependencies: [
+        ui_dep,
+        pybind_dep,
+        python_dep
+    ],
+    name_prefix: ''
+)
+
+bindcomputeengine_src = [
+    'computeengine/module.cpp'
+]
 
 bindcomputeengine = shared_library(
     '_computeengine',
@@ -36,4 +68,3 @@ bindcomputeengine = shared_library(
         python_dep],
     name_prefix: ''
 )
-

@@ -15,14 +15,14 @@ namespace core
 Node::Node(const Dict& params)
     : m_state(nullptr)
 {
-    for (const auto& pair : params.get_as<Dict>("input_knobs"))
+    for (const auto& pair : params["input_knobs"].cast<Dict>())
     {
-        m_input_knobs.mutable_set(pair.first, std::get<KnobId>(pair.second));
+        m_input_knobs.mutable_set(pair.first, pair.second.cast<KnobId>());
     }
 
-    for (const auto& pair : params.get_as<Dict>("output_knobs"))
+    for (const auto& pair : params["output_knobs"].cast<Dict>())
     {
-        m_output_knobs.mutable_set(pair.first, std::get<KnobId>(pair.second));
+        m_output_knobs.mutable_set(pair.first, pair.second.cast<KnobId>());
     }
 }
 

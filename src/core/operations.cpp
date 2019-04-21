@@ -7,6 +7,7 @@
 #include "core/nodefactory.h"
 #include "core/nodestoragetypes.h"
 #include "core/pluginmanager.h"
+#include "core/value/defaultvalues.h"
 
 #include <map>
 #include <memory>
@@ -57,27 +58,27 @@ NodeStorageState make_node(
     const Dict node_info = node_factory->node_info();
     Dict node_params;
 
-    for (const auto& pair : node_info.get_as<Dict>("input_knob_schema"))
+    for (const auto& pair : node_info["input_knob_schema"].cast<Dict>())
     {
         const auto knob_id = next_state.m_next_knob_id;
 
-        const auto& knob_schema_name = std::get<std::string>(pair.second);
+        const auto& knob_schema_name = pair.second.cast<std::string>();
         const auto& knob_schema = plugin_manager.get_knob_schema(knob_schema_name);
 
         next_state = make_knob(std::move(next_state), node_id, knob_schema);
 
-        node_params.get_as<Dict>("input_knobs")[pair.first] = knob_id;
+        node_params["input_knobs"].cast<Dict>()[pair.first] = knob_id;
     }
 
-    for (const auto& pair : node_info.get_as<Dict>("output_knob_schema"))
+    for (const auto& pair : node_info["output_knob_schema"].cast<Dict>())
     {
         const auto knob_id = next_state.m_next_knob_id;
 
-        const auto& knob_schema_name = std::get<std::string>(pair.second);
+        const auto& knob_schema_name = pair.second.cast<std::string>();
         const auto& knob_schema = plugin_manager.get_knob_schema(knob_schema_name);
         next_state = make_knob(std::move(next_state), node_id, knob_schema);
 
-        node_params.get_as<Dict>("output_knobs")[pair.first] = knob_id;
+        node_params["output_knobs"].cast<Dict>()[pair.first] = knob_id;
     }
 
     auto node = node_factory->create(std::move(node_params));

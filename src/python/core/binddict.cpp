@@ -2,6 +2,7 @@
 #include "python/core/pythondictconversion.h"
 
 #include "core/dict.h"
+#include "core/value/defaultvalues.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -10,7 +11,6 @@
 #include <memory>
 #include <stdexcept>
 #include <utility>
-#include <variant>
 
 using namespace core;
 
@@ -23,11 +23,11 @@ void set_item(Dict& self, const std::string& key, const py::object& value)
 {
     if (value.ptr() == Py_None)
     {
-        self[key] = std::monostate{};
+        self[key] = Value();
     }
     else if (PyDict_Check(value.ptr()))
     {
-        self[key] = from_dict<Dict>(value.cast<py::dict>());
+        self[key] = from_python_dict<Dict>(value.cast<py::dict>());
     }
     else if (PyUnicode_Check(value.ptr()))
     {
@@ -35,7 +35,7 @@ void set_item(Dict& self, const std::string& key, const py::object& value)
     }
     else if (PyFloat_Check(value.ptr()))
     {
-        self[key] = value.cast<double>();
+        self[key] = value.cast<float>();
     }
     else if (PyBool_Check(value.ptr()))
     {
@@ -43,7 +43,7 @@ void set_item(Dict& self, const std::string& key, const py::object& value)
     }
     else if (PyNumber_Check(value.ptr()))
     {
-        self[key] = value.cast<std::uint64_t>();
+        self[key] = value.cast<std::int64_t>();
     }
     else
     {
@@ -57,13 +57,12 @@ void bind_dict(py::handle scope)
 {
     py::class_<Dict>(scope, "Dict")
         .def(py::init<>())
-        .def(py::init(&from_dict<Dict>))
+        .def(py::init(&from_python_dict<Dict>))
         .def(
             "__getitem__",
             [](const Dict& self, const std::string& key)
             {
                 return self[key];
             })
-        .def("__setitem__", &set_item)
-        .def("__repr__", &Dict::to_string);
+        .def("__setitem__", &set_item);
 }

@@ -1,4 +1,4 @@
-#include "core/valuetype.h"
+#include "core/value/valuetype.h"
 
 #include <utility>
 
@@ -25,6 +25,11 @@ const std::string& ValueType::name() const
 bool ValueType::operator==(const ValueType& other) const
 {
     return m_type_hash_code == other.m_type_hash_code;
+}
+
+bool ValueType::operator!=(const ValueType& other) const
+{
+    return m_type_hash_code != other.m_type_hash_code;
 }
 
 } // namespace core

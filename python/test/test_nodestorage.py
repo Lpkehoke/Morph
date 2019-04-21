@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from python.core import NodeStorage, NodeFactoryRegistry, Logger
+from python.morph.core import NodeStorage, NodeFactoryRegistry, Logger
 
 
 class TestNodeStorage(unittest.TestCase):

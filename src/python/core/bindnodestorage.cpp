@@ -43,22 +43,22 @@ void NodeStorageAdapter::dispatch(const py::dict& action)
 
     if (action_type == "CreateNode")
     {
-        auto create_node = from_dict<CreateNode>(action);
+        auto create_node = from_python_dict<CreateNode>(action);
         m_node_storage->dispatch(std::move(create_node));
     }
     else if (action_type == "RemoveNode")
     {
-        auto remove_node = from_dict<RemoveNode>(action);
+        auto remove_node = from_python_dict<RemoveNode>(action);
         m_node_storage->dispatch(std::move(remove_node));
     }
     else if (action_type == "UpdateNodeMetadata")
     {
-        auto update_node_metadata = from_dict<UpdateNodeMetadata>(action);
+        auto update_node_metadata = from_python_dict<UpdateNodeMetadata>(action);
         m_node_storage->dispatch(std::move(update_node_metadata));
     }
     else if (action_type == "MakeConnection")
     {
-        auto make_connection = from_dict<MakeConnection>(action);
+        auto make_connection = from_python_dict<MakeConnection>(action);
         m_node_storage->dispatch(std::move(make_connection));
     }
     else
