@@ -35,22 +35,22 @@ Dict from_python_dict(const py::dict& input)
         if (PyFloat_Check(val.ptr()))
         {
             float val_double = val.cast<float>();
-            dict[key_str] << val_double;
+            dict[key_str] = val_double;
         }
         else if (PyUnicode_Check(val.ptr()))
         {
             std::string val_str = val.cast<std::string>();
-            dict[key_str] << std::move(val_str);
+            dict[key_str] = std::move(val_str);
         }
         else if (PyBool_Check(val.ptr()))
         {
             bool val_bool = val.cast<bool>();
-            dict[key_str] << val_bool;
+            dict[key_str] = val_bool;
         }
         else if (PyDict_Check(val.ptr()))
         {
             Dict val_dict = from_python_dict<Dict>(val.cast<py::dict>());
-            dict[key_str] << std::move(val_dict);
+            dict[key_str] = std::move(val_dict);
         }
         else
         {
