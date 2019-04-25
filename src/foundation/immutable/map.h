@@ -170,8 +170,25 @@ class Map
 
     bool operator==(const Map& other) const
     {
-        // TODO.
-        return false;
+        if (m_root == other.m_root)
+        {
+            return true;
+        }
+
+        if (m_size != other.m_size)
+        {
+            return false;
+        }
+
+        if (m_size == 0)
+        {
+            return true;
+        }
+
+        //
+        //  Root node pointers are different, but have equal 
+        //  (non-zero) number of elements. Let's check nodes element-wise.
+        return *m_root == *other.m_root;
     }
 
     const Value& operator[](Key key) const

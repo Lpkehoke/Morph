@@ -17,7 +17,16 @@ namespace detail
 {
 
 using CastFn = void* (*)(const void*);
+using EqualsFn = bool (*)(const void*, const void*);
 using CastsCollection = std::map<std::size_t, CastFn>;
+
+template <typename T>
+const EqualsFn default_equals = +[](const void* lhs, const void* rhs)
+    {
+        const T& lhs_ref = *static_cast<const T*>(lhs);
+        const T& rhs_ref = *static_cast<const T*>(rhs);
+        return lhs_ref == rhs_ref;
+    };
 
 template <typename From, typename To>
 static CastFn make_cast()
@@ -83,14 +92,20 @@ class ValueType
     template <typename... Types>
     struct DefCastsFrom {};
 
+    using EqualsFn = detail::EqualsFn;
+
     template <typename T, typename... Types>
-    ValueType(std::string name, TypeTag<T>, DefCastsFrom<Types...>);
+    ValueType(
+        std::string             name,
+        TypeTag<T>,
+        DefCastsFrom<Types...>,
+        EqualsFn                equals = detail::default_equals<T>);
 
     template <typename T>
-    ValueType(std::string name, TypeTag<T>);
+    ValueType(std::string name, TypeTag<T>, EqualsFn equals = detail::default_equals<T>);
 
     template <typename T>
-    ValueType(TypeTag<T>);
+    ValueType(TypeTag<T>, EqualsFn equals = detail::default_equals<T>);
 
     ValueType(const ValueType& other);
     ValueType(ValueType&& other);
@@ -111,6 +126,9 @@ class ValueType
     template <typename T>
     std::unique_ptr<T> try_cast_from(std::size_t type_hash_code, const void* arg) const;
 
+    template <typename T>
+    bool equals(const T& lhs, const T& rhs) const;
+
     bool operator==(const ValueType& other) const;
     bool operator!=(const ValueType& other) const;
   
@@ -118,6 +136,7 @@ class ValueType
     std::string             m_name;
     std::size_t             m_type_hash_code;
     detail::CastsCollection m_known_casts_from;
+    EqualsFn                m_equals;
 };
 
 
@@ -126,22 +145,25 @@ class ValueType
 //
 
 template <typename T, typename... Types>
-ValueType::ValueType(std::string name, TypeTag<T>, DefCastsFrom<Types...>)
+ValueType::ValueType(std::string name, TypeTag<T>, DefCastsFrom<Types...>, EqualsFn equals)
   : m_name(std::move(name))
   , m_type_hash_code(typeid(T).hash_code())
   , m_known_casts_from(detail::get_type_hash_codes<T, Types...>())
+  , m_equals(equals)
 {}
 
 template <typename T>
-ValueType::ValueType(std::string name, TypeTag<T>)
+ValueType::ValueType(std::string name, TypeTag<T>, EqualsFn equals)
   : m_name(std::move(name))
   , m_type_hash_code(typeid(T).hash_code())
+  , m_equals(equals)
 {}
 
 template <typename T>
-ValueType::ValueType(TypeTag<T>)
+ValueType::ValueType(TypeTag<T>, EqualsFn equals)
   : m_name(typeid(T).name())
   , m_type_hash_code(typeid(T).hash_code())
+  , m_equals(equals)
 {}
 
 template <typename T>
@@ -178,6 +200,24 @@ std::unique_ptr<T> ValueType::try_cast_from(std::size_t type_hash_code, const vo
 
     auto cast_fn = cast_itr->second;
     return std::unique_ptr<T>(static_cast<T*>((*cast_fn)(&arg)));
+}
+
+template <typename T>
+bool ValueType::equals(const T& lhs, const T& rhs) const
+{
+    if (!is<T>())
+    {
+        throw std::runtime_error("T should match the type of this ValueType.");
+    }
+
+    if (m_equals)
+    {
+        return (*m_equals)(
+            static_cast<const void*>(&lhs),
+            static_cast<const void*>(&rhs));
+    }
+
+    throw std::runtime_error("TypeValue doesn't have equals function defined.");
 }
 
 } // namespace core

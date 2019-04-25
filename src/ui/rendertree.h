@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/dict.h"
+
 #include "ui/uitypes.h"
 
 #include "foundation/immutable/map.h"
@@ -32,12 +34,14 @@ struct ElementInitializer
 {
     ElementType                 type;
     ComponentFactory*           component_factory;
+    core::Dict                  props;
 };
 
 struct Element
 {
     ElementType                 type;
     Component*                  component;
+    core::Dict                  props;
     std::optional<int>          output;
     ElementChildrenCollection   children;
 };

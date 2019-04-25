@@ -406,6 +406,76 @@ struct Node : public RefCounted
         return dest;
     }
 
+    bool operator==(const Node& other) const
+    {
+        if (is_inner())
+        {
+            if (!other.is_inner())
+            {
+                return false;
+            }
+
+            if ((datamap() != other.datamap()) || (nodemap() != other.nodemap()))
+            {
+                return false;
+            }
+
+            auto this_data = data();
+            auto last_data = this_data + data_size();
+            auto other_data = other.data();
+
+            for (; this_data != last_data; ++this_data, ++other_data)
+            {
+                if (*this_data != *other_data)
+                {
+                    return false;
+                }
+            }
+
+            auto this_child = children();
+            auto last_child = this_child + children_size();
+            auto other_child = other.children();
+
+            for (; this_child != last_child; ++this_child, ++other_child)
+            {
+                if (*this_child != *other_child)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        //
+        //  This is collision node.
+        //
+
+        if (other.is_inner())
+        {
+            return false;
+        }
+
+        if (collision_size() != other.children_size())
+        {
+            return false;
+        }
+
+        auto this_collision = collision_data();
+        auto last_collision = this_collision + collision_size();
+        auto other_collision = other.collision_data();
+
+        for (;this_collision != last_collision; ++this_collision, ++other_collision)
+        {
+            if (*this_collision != *other_collision)
+            {
+                return false;
+            }
+        }
+
+        return true; 
+    }
+
     Impl m_impl;
 };
 

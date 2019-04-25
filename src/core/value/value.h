@@ -119,7 +119,7 @@ class Value
                 return false;
             }
 
-            return static_cast<const ValueHolder&>(other).m_value == m_value;
+            return m_value_type.equals(static_cast<const ValueHolder&>(other).m_value, m_value);
         }
 
         virtual void try_cast_from(std::size_t type_hash_code, const void* arg) override

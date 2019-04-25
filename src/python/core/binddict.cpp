@@ -22,7 +22,16 @@ namespace py = pybind11;
 namespace
 {
 
-const ValueType python_object_value_type("Python Object", ValueType::TypeTag<pybind11::object> {});
+const ValueType python_object_value_type(
+    "Python Object",
+    ValueType::TypeTag<pybind11::object> {},
+    +[](const void* lhs, const void* rhs)
+    {
+        auto& lhs_obj = *static_cast<const pybind11::object*>(lhs);
+        auto& rhs_obj = *static_cast<const pybind11::object*>(rhs);
+
+        return lhs_obj.is(rhs_obj);
+    });
 
 void set_item(Dict& self, const std::string& key, const py::object& value)
 {
