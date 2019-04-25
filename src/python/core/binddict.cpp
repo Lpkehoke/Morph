@@ -1,8 +1,11 @@
 #include "python/core/bindcore.h"
+
 #include "python/core/pythondictconversion.h"
 
 #include "core/dict.h"
 #include "core/value/defaultvalues.h"
+#include "core/value/value.h"
+#include "core/value/valuetype.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -18,6 +21,8 @@ namespace py = pybind11;
 
 namespace
 {
+
+const ValueType python_object_value_type("Python Object", ValueType::TypeTag<pybind11::object> {});
 
 void set_item(Dict& self, const std::string& key, const py::object& value)
 {
@@ -47,7 +52,7 @@ void set_item(Dict& self, const std::string& key, const py::object& value)
     }
     else
     {
-        throw std::runtime_error("Unsupported value type.");
+        self[key] = Value(value, python_object_value_type);
     }
 }
 
