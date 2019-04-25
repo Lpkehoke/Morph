@@ -2,7 +2,8 @@
 
 #include "ui/rendertree.h"
 
-#include <optional>
+#include <functional>
+#include <string>
 
 namespace core { class Dict; }
 
@@ -20,7 +21,17 @@ class Component
         const core::Dict& new_props,
         const core::Dict& new_state) const = 0;
 
+    virtual std::string model() const = 0;
+
     virtual ~Component() = default;
+};
+
+class ComponentFactory
+{
+  public:
+    virtual Component* create() const = 0;
+    virtual std::string model() const = 0;
+    virtual ~ComponentFactory() = default;
 };
 
 } // namespace ui

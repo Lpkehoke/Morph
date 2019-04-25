@@ -1,11 +1,15 @@
 #pragma once
 
+#include "ui/component.h"
+#include "ui/rendertree.h"
 #include "ui/windowmanager.h"
 
 #include "foundation/taskqueue.h"
 
 #include <atomic>
 #include <thread>
+
+namespace ui { class ComponentFactory; }
 
 namespace ui
 {
@@ -16,7 +20,7 @@ class Application
     Application();
     ~Application();
 
-    //void update_root_component(const Component* root_component);
+    void render(const ComponentFactory* component_factory, core::Dict props);
 
   private:
     enum class ApplicationStatus
@@ -30,6 +34,8 @@ class Application
     ApplicationStatus       m_app_status;
     foundation::TaskQueue   m_queue;
     WindowManager           m_window_manager;
+    ElementPtr              m_render_tree;
+    ElementId               m_next_element_id;
 };
 
 } // namespace ui

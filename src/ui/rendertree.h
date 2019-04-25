@@ -10,6 +10,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <variant>
+#include <vector>
 
 namespace ui { class Component; }
 namespace ui { class ComponentFactory; }
@@ -29,26 +31,29 @@ struct Element;
 struct ElementInitializer;
 
 using ElementId = std::uint64_t;
+using ElementKey = std::uint64_t;
 using ElementPtr = std::shared_ptr<Element>;
-using ElementChildrenCollection = foundation::Map<ElementId, ElementPtr>;
-using ElementInitializerCollection = foundation::Map<ElementId, ElementInitializer>;
+
+using ElementCollection = foundation::Map<ElementKey, ElementPtr>;
+using ElementInitializerCollection = std::vector<ElementInitializer>;
 
 struct ElementInitializer
 {
     ElementType                 type;
-    ComponentFactory*           component_factory;
+    const ComponentFactory*     component_factory;
     core::Dict                  props;
+    ElementKey                  key;
 };
 
 struct Element
 {
+    ElementId                   id;
     ElementType                 type;
-    Component*                  component;
+    const Component*            component;
     core::Dict                  props;
     core::Dict                  state;
-    core::Dict                  last_rendered_state;
     std::optional<int>          output;
-    ElementChildrenCollection   children;
+    ElementCollection           children;
 };
 
 } // namespace ui
